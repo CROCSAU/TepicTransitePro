@@ -3,294 +3,141 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>Tepic Transite Pro — Transporte Público Tepic, Nayarit</title>
+<title>Tepic Transite Pro v4</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <style>
-/* ═══════════════════════════════════════════
-   RESET + VARIABLES
-════════════════════════════════════════════ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --pr:#2563eb; --pr-dk:#1d4ed8; --pr-lt:#dbeafe;
-  --ok:#10b981; --er:#ef4444; --wa:#f59e0b;
-  --bg:#f8fafc; --sf:#ffffff; --sf2:#f8fafc;
-  --tx:#0f172a; --tx2:#64748b; --bd:#e2e8f0;
+  --pr:#2563eb;--pr-dk:#1d4ed8;--pr-lt:#dbeafe;
+  --ok:#10b981;--er:#ef4444;--wa:#f59e0b;
+  --bg:#f1f5f9;--sf:#ffffff;--tx:#0f172a;--tx2:#64748b;--bd:#e2e8f0;
   --sh1:0 1px 3px rgba(0,0,0,.08);
-  --sh2:0 4px 6px -1px rgba(0,0,0,.10), 0 2px 4px -1px rgba(0,0,0,.06);
-  --sh3:0 10px 15px -3px rgba(0,0,0,.10), 0 4px 6px -2px rgba(0,0,0,.05);
-  --r:8px; --rl:12px; --rx:20px;
-  --panel:380px; --hdr:52px;
+  --sh2:0 4px 12px rgba(0,0,0,.10);
+  --sh3:0 8px 24px rgba(0,0,0,.12);
+  --r:8px;--rl:14px;--rx:20px;
+  --side:370px;--hdr:52px;--botnav:60px;
 }
-[data-theme=dark]{
-  --bg:#0f172a; --sf:#1e293b; --sf2:#0f172a;
-  --tx:#f1f5f9; --tx2:#94a3b8; --bd:#334155; --pr-lt:#172554;
-}
-html,body{height:100%;overflow:hidden;font-family:'Inter',system-ui,-apple-system,sans-serif;font-size:16px;line-height:1.5}
+[data-theme=dark]{--bg:#0f172a;--sf:#1e293b;--tx:#f1f5f9;--tx2:#94a3b8;--bd:#334155;--pr-lt:#172554}
+html,body{height:100%;overflow:hidden;font-family:'Inter',system-ui,sans-serif}
 body{background:var(--bg);color:var(--tx);-webkit-font-smoothing:antialiased}
 button,input,select{font-family:inherit;font-size:inherit}
-
-/* ═══════════════════════════════════════════
-   LAYOUT SHELL
-════════════════════════════════════════════ */
+/* APP */
 #app{display:flex;flex-direction:column;height:100vh;height:100dvh}
-
-/* ── HEADER ── */
-.hdr{
-  height:var(--hdr);flex-shrink:0;
-  background:var(--sf);border-bottom:1px solid var(--bd);
-  display:flex;align-items:center;gap:10px;padding:0 16px;
-  z-index:1200;box-shadow:var(--sh1);
-}
-.brand{display:flex;align-items:center;gap:9px}
-.brand-ico{
-  width:34px;height:34px;background:var(--pr);border-radius:9px;
-  display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;
-}
+/* HEADER */
+.hdr{height:var(--hdr);flex-shrink:0;background:var(--sf);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;padding:0 14px;z-index:1200;box-shadow:var(--sh1)}
+.brand-ico{width:32px;height:32px;background:var(--pr);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
 .brand-nm{font-size:.9375rem;font-weight:700;color:var(--tx);white-space:nowrap}
 .brand-nm em{color:var(--pr);font-style:normal}
-.live-pill{
-  display:flex;align-items:center;gap:4px;
-  background:#dcfce7;color:#166534;
-  padding:3px 10px;border-radius:999px;
-  font-size:.625rem;font-weight:700;letter-spacing:.5px;flex-shrink:0;
-}
+.live-pill{display:flex;align-items:center;gap:4px;background:#dcfce7;color:#166534;padding:3px 9px;border-radius:999px;font-size:.625rem;font-weight:700;letter-spacing:.5px;flex-shrink:0}
 .dot{width:6px;height:6px;background:#16a34a;border-radius:50%;animation:blink 1.4s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 .ml{margin-left:auto}
-.hb{
-  width:36px;height:36px;border-radius:var(--r);
-  border:1px solid var(--bd);background:transparent;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  color:var(--tx2);font-size:15px;transition:all .15s;flex-shrink:0;
-}
+.hb{width:36px;height:36px;border-radius:9px;border:1px solid var(--bd);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--tx2);font-size:15px;transition:all .15s;flex-shrink:0}
 .hb:hover{background:var(--bg);color:var(--tx)}
-
-/* ── D-TABS (desktop) ── */
-.d-tabs{display:none;gap:3px;margin-left:10px}
+/* DESKTOP TABS */
+.d-tabs{display:none;gap:3px;margin-left:8px}
 @media(min-width:768px){.d-tabs{display:flex}}
-.d-tab{padding:6px 13px;border-radius:var(--r);font-size:.8125rem;font-weight:500;border:none;background:transparent;cursor:pointer;color:var(--tx2);transition:all .15s}
+.d-tab{padding:6px 12px;border-radius:8px;font-size:.8125rem;font-weight:500;border:none;background:transparent;cursor:pointer;color:var(--tx2);transition:all .15s}
 .d-tab.on{background:var(--pr-lt);color:var(--pr)}
-
-/* ── BODY ── */
+/* BODY */
 .body{flex:1;display:flex;overflow:hidden;position:relative}
-
-/* ── MAP ── */
-#map-wrap{flex:1;position:relative;min-width:0;height:100%}
+#map-wrap{flex:1;position:relative;min-width:0}
 #map{width:100%;height:100%}
-
-/* ── MAP FABs ── */
-.map-fab{
-  position:absolute;right:14px;bottom:14px;z-index:500;
-  display:flex;flex-direction:column;gap:8px;
-}
-@media(max-width:768px){.map-fab{bottom:calc(38vh + 14px)}}
-.fab{
-  width:42px;height:42px;border-radius:11px;
-  background:var(--sf);border:1px solid var(--bd);
-  box-shadow:var(--sh2);cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  font-size:17px;transition:all .15s;color:var(--tx);
-}
-.fab:hover{transform:scale(1.08);box-shadow:var(--sh3)}
-
-/* ── MAP LEGEND ── */
-.map-legend{
-  position:absolute;bottom:14px;left:14px;z-index:500;
-  background:var(--sf);border:1px solid var(--bd);
-  border-radius:var(--rl);padding:9px 12px;
-  font-size:.625rem;box-shadow:var(--sh1);max-width:152px;
-}
-@media(max-width:768px){.map-legend{bottom:calc(38vh + 14px)}}
-.leg-title{font-size:.5625rem;font-weight:700;color:var(--tx2);letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px}
-.leg-i{display:flex;align-items:center;gap:5px;margin-bottom:3px}
-.leg-i:last-child{margin-bottom:0}
-.leg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
-.leg-nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--tx);font-weight:500}
-
-/* ═══════════════════════════════════════════
-   ROUTES PANEL — DESKTOP SIDEBAR
-════════════════════════════════════════════ */
-#panel{
-  width:var(--panel);flex-shrink:0;
-  background:var(--sf);
-  border-left:1px solid var(--bd);
-  display:none;flex-direction:column;
-  box-shadow:-2px 0 12px rgba(0,0,0,.05);
-  transition:width .26s ease;overflow:hidden;
-}
-@media(min-width:768px){#panel{display:flex}}
-/* collapsed */
-#panel.col{width:52px}
-#panel.col .p-cnt{display:none}
-#panel.col .p-title{display:none}
-
-.p-top{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:12px 16px;border-bottom:1px solid var(--bd);
-  flex-shrink:0;min-height:49px;gap:8px;
-}
-#panel.col .p-top{justify-content:center;padding:12px 10px}
-.p-title{font-size:.8125rem;font-weight:700;color:var(--tx2);letter-spacing:.4px;white-space:nowrap;text-transform:uppercase}
-.col-btn{
-  width:30px;height:30px;border-radius:var(--r);
-  border:1px solid var(--bd);background:transparent;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;
-  font-size:12px;color:var(--tx2);flex-shrink:0;transition:all .15s;
-}
+/* SIDEBAR */
+#sidebar{width:var(--side);flex-shrink:0;background:var(--sf);border-left:1px solid var(--bd);display:none;flex-direction:column;box-shadow:-2px 0 12px rgba(0,0,0,.06);transition:width .25s ease;overflow:hidden}
+@media(min-width:768px){#sidebar{display:flex}}
+#sidebar.col{width:52px}
+#sidebar.col .sb-cnt{display:none}
+#sidebar.col .sb-title{display:none}
+.sb-top{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--bd);flex-shrink:0;gap:8px;min-height:49px}
+#sidebar.col .sb-top{justify-content:center;padding:12px 10px}
+.sb-title{font-size:.75rem;font-weight:700;color:var(--tx2);letter-spacing:.5px;white-space:nowrap}
+.col-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--bd);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--tx2);flex-shrink:0;transition:all .15s}
 .col-btn:hover{background:var(--bg)}
-
-/* Panel scroll container */
-.p-cnt{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
-.p-cnt::-webkit-scrollbar{width:3px}
-.p-cnt::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
-
-/* ── PANELS (tabs) ── */
-.panel{display:none;padding:16px}
+.sb-cnt{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.sb-cnt::-webkit-scrollbar{width:3px}
+.sb-cnt::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+/* PANELS */
+.panel{display:none;padding:14px}
 .panel.on{display:block}
-.sec{
-  font-size:.6875rem;font-weight:600;letter-spacing:.8px;
-  text-transform:uppercase;color:var(--tx2);margin-bottom:10px;
-}
-
-/* ── STATS GRID ── */
-.sg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
-.sc{background:var(--sf2);border-radius:var(--r);border:1px solid var(--bd);padding:12px 10px;text-align:center}
-.sn{font-size:1.5rem;font-weight:700}
-.sl{font-size:.625rem;color:var(--tx2);margin-top:2px}
-
-/* ── CONTROLS ── */
+.sec{font-size:.6875rem;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--tx2);margin-bottom:8px}
+/* STATS */
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.sc{background:var(--bg);border-radius:var(--r);border:1px solid var(--bd);padding:10px 8px;text-align:center}
+.sn{font-size:1.375rem;font-weight:700}
+.sl{font-size:.625rem;color:var(--tx2);margin-top:1px}
+/* CTRL */
 .cr{display:flex;gap:6px;margin-bottom:10px}
-.cb{
-  flex:1;padding:8px;border-radius:var(--r);
-  border:1px solid var(--bd);background:transparent;
-  font-size:.75rem;font-weight:500;cursor:pointer;
-  color:var(--tx2);transition:all .15s;
-  display:flex;align-items:center;justify-content:center;gap:4px;
-}
+.cb{flex:1;padding:8px;border-radius:var(--r);border:1px solid var(--bd);background:transparent;font-size:.75rem;font-weight:500;cursor:pointer;color:var(--tx2);transition:all .15s;display:flex;align-items:center;justify-content:center;gap:4px}
 .cb:hover{background:var(--bg);color:var(--tx)}
 .cb.d{border-color:#fecaca;color:#dc2626}.cb.d:hover{background:#fef2f2}
 .cb.s{border-color:#bbf7d0;color:#16a34a}.cb.s:hover{background:#f0fdf4}
-
-/* ── FILTER CHIPS ── */
-.fr{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
-.fc{
-  padding:5px 11px;border-radius:999px;
-  border:1px solid var(--bd);background:transparent;
-  font-size:.75rem;font-weight:500;cursor:pointer;
-  color:var(--tx2);transition:all .15s;white-space:nowrap;
-}
+/* FILTER */
+.fr{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.fc{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:999px;border:1px solid var(--bd);background:transparent;font-size:.75rem;font-weight:500;cursor:pointer;color:var(--tx2);transition:all .15s;white-space:nowrap}
 .fc.on{background:var(--pr-lt);border-color:var(--pr);color:var(--pr)}
-
-/* ── ROUTE CARD ── */
-.rc{
-  background:var(--sf);border:1px solid var(--bd);
-  border-radius:var(--rl);padding:12px 14px;
-  margin-bottom:7px;transition:all .18s;
-  box-shadow:var(--sh1);cursor:default;
-}
+/* ROUTE CARD */
+.rc{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:11px 12px;margin-bottom:7px;transition:all .18s;box-shadow:var(--sh1)}
 .rc:hover{box-shadow:var(--sh2);transform:translateY(-1px)}
 .rc.si{border-color:var(--pr);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
-
-.rc-row{display:flex;align-items:center;gap:9px}
+.rc-top{display:flex;align-items:center;gap:8px}
 .rdot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
 .rname{font-size:.875rem;font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rtag{font-size:.5625rem;color:var(--tx2);flex-shrink:0}
-
-/* iOS toggle */
-.tog{position:relative;width:44px;height:26px;flex-shrink:0}
+.run{font-size:.625rem;color:var(--tx2);flex-shrink:0}
+/* TOGGLE */
+.tog{position:relative;width:44px;height:25px;flex-shrink:0}
 .tog input{opacity:0;width:0;height:0;position:absolute}
 .tog-tr{position:absolute;inset:0;border-radius:13px;background:var(--bd);cursor:pointer;transition:background .2s}
 .tog input:checked+.tog-tr{background:var(--ok)}
-.tog-th{position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.2);transition:transform .2s;pointer-events:none}
-.tog input:checked~.tog-th{transform:translateX(18px)}
-
-/* Solo (eye) button */
-.solo{
-  width:30px;height:30px;border-radius:var(--r);
-  border:1px solid var(--bd);background:transparent;
-  cursor:pointer;font-size:13px;
-  display:flex;align-items:center;justify-content:center;
-  flex-shrink:0;transition:all .15s;color:var(--tx2);
-}
-.solo:hover{background:var(--pr-lt);border-color:var(--pr);color:var(--pr)}
-.solo.on{background:var(--pr);border-color:var(--pr);color:#fff}
-
-.rc-meta{font-size:.625rem;color:var(--tx2);margin-top:6px;padding-left:20px;display:flex;flex-wrap:wrap;gap:9px}
-
-/* ── SEARCH ── */
-.sw{position:relative;margin-bottom:12px}
-.sinp{
-  width:100%;padding:10px 12px 10px 34px;
-  border:1.5px solid var(--bd);border-radius:var(--r);
-  font-size:.875rem;color:var(--tx);background:var(--sf);
-  outline:none;transition:border-color .15s,box-shadow .15s;
-}
-.sinp:focus{border-color:var(--pr);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
-.sico{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px;pointer-events:none}
-.sdrop{
-  position:absolute;top:calc(100% + 3px);left:0;right:0;z-index:300;
-  background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);
-  box-shadow:var(--sh3);max-height:200px;overflow-y:auto;display:none;
-}
-.sdrop.open{display:block}
-.sitem{padding:9px 13px;cursor:pointer;font-size:.875rem;border-bottom:1px solid var(--bd);transition:background .1s}
-.sitem:last-child{border-bottom:none}
-.sitem:hover{background:var(--bg)}
-
-/* ── FIELDS ── */
-.field{
-  width:100%;padding:10px 12px;border:1.5px solid var(--bd);
-  border-radius:var(--r);font-size:.875rem;color:var(--tx);
-  background:var(--sf);outline:none;transition:border-color .15s,box-shadow .15s;margin-bottom:10px;
-}
+.tog-th{position:absolute;top:3px;left:3px;width:19px;height:19px;background:#fff;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,.2);transition:transform .2s;pointer-events:none}
+.tog input:checked~.tog-th{transform:translateX(19px)}
+.solo-btn{width:28px;height:28px;border-radius:7px;border:1px solid var(--bd);background:transparent;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;color:var(--tx2)}
+.solo-btn:hover{background:var(--pr-lt);border-color:var(--pr);color:var(--pr)}
+.solo-btn.act{background:var(--pr);border-color:var(--pr);color:#fff}
+.rc-meta{font-size:.625rem;color:var(--tx2);margin-top:6px;padding-left:19px;display:flex;flex-wrap:wrap;gap:8px}
+/* SEARCH */
+.sw{position:relative;margin-bottom:10px}
+.si{width:100%;padding:10px 13px 10px 34px;border:1.5px solid var(--bd);border-radius:var(--r);font-size:.875rem;color:var(--tx);background:var(--sf);outline:none;transition:border-color .15s,box-shadow .15s}
+.si:focus{border-color:var(--pr);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.si-ico{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px;pointer-events:none}
+.sd{position:absolute;top:100%;left:0;right:0;z-index:300;background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--sh3);max-height:190px;overflow-y:auto;display:none;margin-top:3px}
+.sd.open{display:block}
+.si-item{padding:9px 13px;cursor:pointer;font-size:.875rem;border-bottom:1px solid var(--bd);transition:background .1s}
+.si-item:last-child{border-bottom:none}
+.si-item:hover{background:var(--bg)}
+/* FIELDS */
+.field{width:100%;padding:10px 12px;border:1.5px solid var(--bd);border-radius:var(--r);font-size:.875rem;color:var(--tx);background:var(--sf);outline:none;transition:border-color .15s,box-shadow .15s;margin-bottom:10px}
 .field:focus{border-color:var(--pr);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
-
-/* ── BUTTONS ── */
-.btn-pr{
-  width:100%;padding:12px 20px;background:var(--pr);color:#fff;
-  border:none;border-radius:var(--r);font-size:.9375rem;font-weight:600;
-  cursor:pointer;transition:all .2s;
-  box-shadow:0 2px 8px rgba(37,99,235,.3);
-  display:flex;align-items:center;justify-content:center;gap:7px;
-}
-.btn-pr:hover{background:var(--pr-dk);transform:translateY(-1px);box-shadow:0 4px 14px rgba(37,99,235,.4)}
-.btn-sec{
-  width:100%;margin-top:8px;font-size:.8125rem;
-  border:1px solid var(--bd);background:transparent;
-  padding:8px;border-radius:var(--r);cursor:pointer;color:var(--tx2);transition:background .15s;
-}
-.btn-sec:hover{background:var(--bg)}
-
-/* ── RESULT CARDS ── */
+.btn-go{width:100%;padding:12px 20px;background:var(--pr);color:#fff;border:none;border-radius:var(--r);font-size:.9375rem;font-weight:600;cursor:pointer;transition:all .2s;box-shadow:0 2px 8px rgba(37,99,235,.3);display:flex;align-items:center;justify-content:center;gap:7px}
+.btn-go:hover{background:var(--pr-dk);transform:translateY(-1px);box-shadow:0 4px 14px rgba(37,99,235,.4)}
+/* RESULT CARDS */
 .res-card{border:1.5px solid var(--bd);border-radius:var(--rl);overflow:hidden;margin-bottom:10px;background:var(--sf);box-shadow:var(--sh1)}
 .res-card.best{border-color:var(--pr)}
-.res-hd{padding:12px 14px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:background .15s}
+.res-hd{padding:11px 13px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:background .15s}
 .res-hd:hover{background:var(--bg)}
 .res-ttl{font-size:.875rem;font-weight:600}
 .badge{font-size:.6875rem;font-weight:600;padding:3px 9px;border-radius:999px}
 .bg-g{background:#dcfce7;color:#166534}
 .bg-b{background:#dbeafe;color:#1e40af}
 .bg-a{background:#fef3c7;color:#92400e}
-.res-st{display:flex;gap:12px;padding:0 14px 10px;font-size:.75rem;color:var(--tx2)}
-.res-bd{padding:0 14px 14px;border-top:1px solid var(--bd);display:none}
+.res-st{display:flex;gap:12px;padding:0 13px 10px;font-size:.75rem;color:var(--tx2)}
+.res-bd{padding:0 13px 13px;border-top:1px solid var(--bd);display:none}
 .res-bd.open{display:block}
 .step{display:flex;gap:9px;padding:8px 0;border-bottom:1px solid var(--bd);font-size:.8125rem;line-height:1.5}
 .step:last-child{border-bottom:none}
-.sn{width:20px;height:20px;border-radius:50%;background:var(--pr-lt);color:var(--pr);font-size:.6875rem;font-weight:700;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.step-n{width:20px;height:20px;border-radius:50%;background:var(--pr-lt);color:var(--pr);font-size:.6875rem;font-weight:700;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px}
 .alert-ok{margin-top:8px;padding:9px 11px;background:#dcfce7;border:1px solid #86efac;border-radius:9px;font-size:.75rem;color:#166534}
-
-/* ── LIVE CARDS ── */
-.lc{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:12px 14px;margin-bottom:8px;box-shadow:var(--sh1)}
-.lc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
-.lc-nm{font-size:.875rem;font-weight:600}
+/* LIVE */
+.lc{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:12px;margin-bottom:8px;box-shadow:var(--sh1)}
+.lc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px}
+.lc-name{font-size:.875rem;font-weight:600}
 .lc-eta{font-size:1rem;font-weight:700;color:var(--ok)}
 .lc-sub{font-size:.75rem;color:var(--tx2);margin-bottom:2px}
 .pbar{height:3px;background:var(--bd);border-radius:2px;margin-top:8px;overflow:hidden}
 .pfill{height:100%;border-radius:2px}
-
-/* ── TEPIC PAY ── */
+/* TEPIC PAY */
 .pay-card{background:linear-gradient(135deg,#1e3a8a,#0f172a);border-radius:var(--rl);padding:20px;margin-bottom:14px;color:#fff;position:relative;overflow:hidden}
 .pay-card::after{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.04)}
 .pay-lbl{font-size:.5625rem;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:14px}
@@ -310,81 +157,47 @@ button,input,select{font-family:inherit;font-size:inherit}
 .tx-d{font-size:.6875rem;color:var(--tx2)}
 .tx-a{font-size:.875rem;font-weight:700;margin-left:auto}
 .neg{color:var(--er)}.pos{color:var(--ok)}
-.qr-box{background:var(--sf2);border:1.5px dashed var(--bd);border-radius:var(--rl);padding:16px;text-align:center;margin-bottom:12px}
+.qr-box{background:var(--bg);border:1.5px dashed var(--bd);border-radius:var(--rl);padding:16px;text-align:center;margin-bottom:12px}
 .qr-cv{display:inline-block;background:#fff;padding:8px;border-radius:9px;box-shadow:var(--sh1)}
 .qbar-w{height:4px;background:var(--bd);border-radius:2px;margin:10px 0;overflow:hidden}
 .qbar-f{height:100%;background:var(--pr);border-radius:2px;transition:width 1s linear}
-.rec-box{background:var(--sf2);border:1.5px solid var(--bd);border-radius:var(--rl);padding:16px;margin-bottom:12px}
+.rec-box{background:var(--bg);border:1.5px solid var(--bd);border-radius:var(--rl);padding:16px;margin-bottom:12px}
 .amts{display:flex;gap:6px;justify-content:center;margin-bottom:10px;flex-wrap:wrap}
 .amt{padding:6px 14px;border:1.5px solid var(--bd);border-radius:6px;cursor:pointer;background:transparent;font-weight:500;font-size:.875rem;color:var(--tx);transition:all .15s}
 .amt:hover{border-color:var(--pr);color:var(--pr);background:var(--pr-lt)}
-
-/* ═══════════════════════════════════════════
-   MOBILE BOTTOM SHEET
-════════════════════════════════════════════ */
-#bsheet{
-  position:fixed;bottom:0;left:0;right:0;
-  background:var(--sf);
-  border-radius:var(--rx) var(--rx) 0 0;
-  box-shadow:0 -4px 20px rgba(0,0,0,.15);
-  z-index:1000;
-  height:38vh;
-  max-height:88vh;
-  display:flex;
-  flex-direction:column;
-  transition:height .3s ease;
-  overflow:hidden;
-}
-#bsheet.expanded{height:88vh}
+.btn-sec{width:100%;margin-top:8px;font-size:.8125rem;border:1px solid var(--bd);background:transparent;padding:8px;border-radius:var(--r);cursor:pointer;color:var(--tx2);transition:background .15s}
+.btn-sec:hover{background:var(--bg)}
+/* FAB */
+.map-fab{position:absolute;right:14px;bottom:calc(var(--botnav)+14px);z-index:500;display:flex;flex-direction:column;gap:8px}
+@media(min-width:768px){.map-fab{bottom:18px}}
+.fab{width:42px;height:42px;border-radius:11px;background:var(--sf);border:1px solid var(--bd);box-shadow:var(--sh2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;transition:all .15s;color:var(--tx)}
+.fab:hover{transform:scale(1.08);box-shadow:var(--sh3)}
+/* LEGEND */
+.map-legend{position:absolute;bottom:calc(var(--botnav)+14px);left:12px;z-index:500;background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:8px 11px;font-size:.625rem;box-shadow:var(--sh1);max-width:148px}
+@media(min-width:768px){.map-legend{bottom:18px}}
+.leg-item{display:flex;align-items:center;gap:5px;margin-bottom:3px}
+.leg-item:last-child{margin-bottom:0}
+.leg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.leg-nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--tx);font-weight:500}
+/* BOTTOM SHEET */
+#bsheet{position:fixed;bottom:var(--botnav);left:0;right:0;background:var(--sf);border-radius:var(--rx) var(--rx) 0 0;box-shadow:0 -8px 36px rgba(0,0,0,.14);z-index:900;max-height:82vh;display:flex;flex-direction:column;transform:translateY(calc(100% - 56px));transition:transform .32s cubic-bezier(.32,.72,0,1)}
+#bsheet.open{transform:translateY(0)}
 @media(min-width:768px){#bsheet{display:none!important}}
-
-.sh-handle{
-  padding:10px 0 6px;
-  display:flex;flex-direction:column;align-items:center;gap:4px;
-  cursor:pointer;flex-shrink:0;
-  touch-action:none;
-}
-.sh-pill{width:38px;height:4px;background:var(--bd);border-radius:2px}
-
-.sh-hdr{
-  display:flex;align-items:center;gap:10px;
-  padding:0 16px 10px;flex-shrink:0;
-}
-.sh-title{font-size:.9375rem;font-weight:700;flex:1}
-.sh-toggle{
-  padding:5px 12px;border-radius:var(--r);
-  border:1px solid var(--bd);background:transparent;
-  font-size:.75rem;font-weight:500;cursor:pointer;color:var(--tx2);
-  transition:all .15s;white-space:nowrap;
-}
-.sh-toggle:hover{background:var(--bg)}
-
-.sh-body{
-  flex:1;overflow-y:auto;overflow-x:hidden;
-  -webkit-overflow-scrolling:touch;
-  padding:0 16px 32px;
-}
+.sh-handle{padding:10px 0 4px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;flex-shrink:0}
+.sh-pill{width:36px;height:4px;background:var(--bd);border-radius:2px}
+.sh-hdr{display:flex;align-items:center;gap:10px;padding:0 16px 10px;flex-shrink:0}
+.sh-title{font-size:.875rem;font-weight:700;flex:1}
+.sh-body{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;flex:1;padding:0 16px 28px}
 .sh-body::-webkit-scrollbar{width:3px}
 .sh-body::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
-
-/* ── MOBILE NAV ── */
-.bot-nav{
-  height:60px;background:var(--sf);border-top:1px solid var(--bd);
-  display:flex;align-items:center;justify-content:space-around;padding:0 4px;
-  z-index:1100;box-shadow:0 -2px 12px rgba(0,0,0,.06);flex-shrink:0;
-  position:relative;
-}
-.bn{
-  display:flex;flex-direction:column;align-items:center;gap:3px;
-  padding:7px 12px;border-radius:12px;cursor:pointer;
-  border:none;background:transparent;color:var(--tx2);transition:all .15s;min-width:56px;
-}
+/* BOTTOM NAV */
+.bot-nav{height:var(--botnav);background:var(--sf);border-top:1px solid var(--bd);display:flex;align-items:center;justify-content:space-around;padding:0 4px;z-index:1100;box-shadow:0 -2px 12px rgba(0,0,0,.06);flex-shrink:0}
+.bn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 12px;border-radius:12px;cursor:pointer;border:none;background:transparent;color:var(--tx2);transition:all .15s;min-width:54px}
 .bn.on{color:var(--pr);background:var(--pr-lt)}
 .bn-i{font-size:1.25rem;line-height:1}
-.bn-l{font-size:.5625rem;font-weight:600;letter-spacing:.3px}
+.bn-l{font-size:.5625rem;font-weight:600}
 @media(min-width:768px){.bot-nav{display:none}}
-
-/* ── POPUP ── */
+/* LEAFLET */
 .leaflet-popup-content-wrapper{background:var(--sf)!important;border:1px solid var(--bd)!important;border-radius:13px!important;box-shadow:var(--sh3)!important;color:var(--tx)!important}
 .leaflet-popup-content{margin:12px 15px!important;font-family:'Inter',sans-serif!important;font-size:13px!important}
 .leaflet-popup-tip{background:var(--sf)!important}
@@ -392,31 +205,21 @@ button,input,select{font-family:inherit;font-size:inherit}
 .leaflet-control-zoom a{background:var(--sf)!important;color:var(--tx)!important;border-color:var(--bd)!important}
 .leaflet-control-attribution{background:rgba(255,255,255,.82)!important;font-size:8px!important}
 .pop-name{font-weight:700;font-size:13px;margin-bottom:5px}
-.pop-bg{font-size:10px;padding:2px 7px;border-radius:999px;font-weight:600;color:#fff;display:inline-block;margin-bottom:5px}
+.pop-bgs{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:5px}
+.pop-bg{font-size:10px;padding:2px 7px;border-radius:999px;font-weight:600;color:#fff}
 .pop-info{font-size:11px;color:var(--tx2);line-height:1.8}
 .pop-nxt{display:inline-block;background:#dcfce7;color:#166534;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:600;margin-top:5px}
-
-/* ── TOAST ── */
-#toast{
-  position:fixed;bottom:72px;left:50%;
-  transform:translateX(-50%) translateY(10px);
-  background:#0f172a;color:#fff;padding:9px 20px;border-radius:999px;
-  font-size:.875rem;font-weight:500;opacity:0;pointer-events:none;
-  transition:all .25s;z-index:9999;white-space:nowrap;box-shadow:var(--sh3);
-}
+/* TOAST */
+#toast{position:fixed;bottom:calc(var(--botnav)+16px);left:50%;transform:translateX(-50%) translateY(10px);background:#0f172a;color:#fff;padding:9px 20px;border-radius:999px;font-size:.875rem;font-weight:500;opacity:0;pointer-events:none;transition:all .25s;z-index:9999;white-space:nowrap;box-shadow:var(--sh3)}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 @media(min-width:768px){#toast{bottom:20px}}
 </style>
 </head>
 <body>
 <div id="app">
-
-<!-- ════ HEADER ════ -->
 <header class="hdr">
-  <div class="brand">
-    <div class="brand-ico">🚌</div>
-    <span class="brand-nm"><em>TEPIC</em> TRANSITE PRO</span>
-  </div>
+  <div class="brand-ico">🚌</div>
+  <span class="brand-nm"><em>TEPIC</em> TRANSITE PRO <span style="font-size:.65rem;opacity:.6">v4</span></span>
   <div class="live-pill"><span class="dot"></span>EN VIVO</div>
   <nav class="d-tabs">
     <button class="d-tab on"  onclick="swD('mapa',this)">🗺️ Mapa</button>
@@ -425,15 +228,11 @@ button,input,select{font-family:inherit;font-size:inherit}
     <button class="d-tab"     onclick="swD('pago',this)">💳 Pay</button>
   </nav>
   <div class="ml" style="display:flex;gap:6px">
-    <button class="hb" onclick="geolocate()" title="Mi ubicación">📍</button>
+    <button class="hb" onclick="geolocate()">📍</button>
     <button class="hb" id="thB" onclick="toggleTheme()">🌙</button>
   </div>
 </header>
-
-<!-- ════ BODY ════ -->
 <div class="body">
-
-  <!-- MAP -->
   <div id="map-wrap">
     <div id="map"></div>
     <div class="map-fab">
@@ -443,52 +242,44 @@ button,input,select{font-family:inherit;font-size:inherit}
     </div>
     <div class="map-legend" id="legend"></div>
   </div>
-
-  <!-- DESKTOP SIDEBAR PANEL -->
-  <aside id="panel">
-    <div class="p-top">
-      <span class="p-title">Panel de rutas</span>
-      <button class="col-btn" id="colBtn" onclick="togglePanel()">◀</button>
+  <aside id="sidebar">
+    <div class="sb-top">
+      <span class="sb-title">PANEL DE RUTAS</span>
+      <button class="col-btn" id="colBtn" onclick="toggleSidebar()">◀</button>
     </div>
-    <div class="p-cnt" id="pCnt">
-
-      <!-- mapa tab -->
+    <div class="sb-cnt" id="sbCnt">
+      <!-- MAPA PANEL -->
       <div id="pd-mapa" class="panel on">
         <div class="sg">
-          <div class="sc"><div class="sn" style="color:var(--pr)">21</div><div class="sl">Rutas</div></div>
-          <div class="sc"><div class="sn" style="color:var(--ok)">800+</div><div class="sl">Unidades</div></div>
+          <div class="sc"><div class="sn" style="color:var(--pr)">22</div><div class="sl">Rutas</div></div>
+          <div class="sc"><div class="sn" style="color:var(--ok)">316</div><div class="sl">Unidades</div></div>
           <div class="sc"><div class="sn" style="color:var(--wa)">$10</div><div class="sl">Tarifa MXN</div></div>
           <div class="sc"><div class="sn" style="color:#8b5cf6">94k</div><div class="sl">Viajes/día</div></div>
         </div>
-
-        <div class="sec">Buscar colonia o destino</div>
+        <div class="sec">Buscar colonia</div>
         <div class="sw">
-          <span class="sico">🔍</span>
-          <input class="sinp" id="si-d" placeholder="Morelos, Aguacate, UAN..." oninput="doSearch(this,'sd-d')" onblur="setTimeout(()=>closeSearch('sd-d'),180)">
-          <div class="sdrop" id="sd-d"></div>
+          <span class="si-ico">🔍</span>
+          <input class="si" id="si-d" placeholder="Morelos, Sauces, UAN, Indeco..." oninput="doSearch(this,'sd-d')" onblur="setTimeout(()=>closeSearch('sd-d'),180)">
+          <div class="sd" id="sd-d"></div>
         </div>
-
-        <div class="sec">Tipo de unidad</div>
+        <div class="sec">Filtrar tipo de unidad</div>
         <div class="fr">
-          <button class="fc on" id="fbd" onclick="togFilter('bus')">🚌 Camiones</button>
-          <button class="fc on" id="fvd" onclick="togFilter('van')">🚐 Combis</button>
+          <button class="fc on" id="fc-b" onclick="toggleFilter('bus')">🚌 Camiones</button>
+          <button class="fc on" id="fc-v" onclick="toggleFilter('van')">🚐 Combis</button>
         </div>
-
         <div class="cr">
           <button class="cb d" onclick="setAll(false)">🚫 Quitar todas</button>
           <button class="cb s" onclick="setAll(true)">✅ Activar todas</button>
         </div>
-
         <div class="sec">Rutas — toca 👁 para ver solo esa</div>
-        <div id="rld"></div>
+        <div id="rl-d"></div>
       </div>
-
-      <!-- planear tab -->
+      <!-- PLANEAR PANEL -->
       <div id="pd-planear" class="panel">
         <div class="sec">Origen</div>
-        <input class="field" id="orid" value="Calle Puebla / Centro Tepic">
+        <input class="field" id="ori-d" value="Calle Puebla / Centro Tepic">
         <div class="sec">Destino</div>
-        <select class="field" id="dstd">
+        <select class="field" id="dst-d">
           <option value="uan">UAN — Universidad Autónoma de Nayarit</option>
           <option value="hospital">Hospital Civil de Tepic</option>
           <option value="central">Central de Autobuses</option>
@@ -499,36 +290,35 @@ button,input,select{font-family:inherit;font-size:inherit}
           <option value="sauces">Infonavit Los Sauces</option>
         </select>
         <div class="sec">Hora de salida</div>
-        <input class="field" type="time" id="hrd" value="14:30" style="margin-bottom:16px">
-        <button class="btn-pr" onclick="calcRuta('d')">🔍 Buscar rutas óptimas</button>
-        <div id="rsd" style="display:none;margin-top:16px">
+        <input class="field" type="time" id="hr-d" value="14:30" style="margin-bottom:14px">
+        <button class="btn-go" onclick="calcRuta('d')">🔍 Buscar rutas óptimas</button>
+        <p style="font-size:.6875rem;color:var(--tx2);margin-top:8px;line-height:1.5">ℹ️ Rutas de referencia. Verificar en <a href="https://semovi.nayarit.gob.mx/muevete-transporte-publico/" target="_blank" style="color:var(--pr)">SEMOVI Nayarit</a></p>
+        <div id="rs-d" style="display:none;margin-top:16px">
           <div class="sec">Opciones de viaje</div>
-          <div id="rcd"></div>
+          <div id="rc-d"></div>
         </div>
       </div>
-
-      <!-- vivo tab -->
+      <!-- VIVO PANEL -->
       <div id="pd-vivo" class="panel">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
           <div class="live-pill"><span class="dot"></span>EN VIVO</div>
           <span style="font-size:.75rem;color:var(--tx2)">Hace <span id="ago-d">3</span>s</span>
         </div>
-        <div id="lld"></div>
+        <div id="ll-d"></div>
       </div>
-
-      <!-- pago tab -->
+      <!-- PAGO PANEL -->
       <div id="pd-pago" class="panel">
         <div class="pay-card">
           <div class="pay-chip">⚡</div>
           <div class="pay-lbl">Gobierno de Nayarit · SEMOVI · Tepic Pay</div>
           <div class="pay-bal-sm">Saldo disponible</div>
-          <div class="pay-bal" id="bald">$247.50</div>
+          <div class="pay-bal" id="bal-d">$247.50</div>
           <div class="pay-num">●●●● ●●●● ●●●● 4827</div>
-          <div class="std-badge">🎓 Estudiante — 50% dto</div>
+          <div class="std-badge">🎓 Estudiante — 50% descuento activo</div>
         </div>
         <div class="acts">
           <div class="act" onclick="showRec('d')"><div class="act-i">➕</div><div class="act-l">Recargar</div></div>
-          <div class="act" onclick="showQR('d')"><div class="act-i">📷</div><div class="act-l">QR</div></div>
+          <div class="act" onclick="showQR('d')"><div class="act-i">📷</div><div class="act-l">Pagar QR</div></div>
           <div class="act"><div class="act-i">📱</div><div class="act-l">NFC</div></div>
         </div>
         <div id="qr-d" style="display:none">
@@ -536,9 +326,9 @@ button,input,select{font-family:inherit;font-size:inherit}
             <div style="font-size:.875rem;font-weight:600;margin-bottom:3px">Código QR dinámico</div>
             <div style="font-size:.75rem;color:var(--tx2)">Válido <span id="qs-d">60</span>s</div>
             <div class="qr-cv"><canvas id="qrc-d" width="108" height="108"></canvas></div>
-            <div style="font-size:1.125rem;font-weight:700;margin:5px 0">$5.00 MXN <span style="font-size:.75rem;color:var(--ok)">(50% est.)</span></div>
+            <div style="font-size:1.125rem;font-weight:700;margin:5px 0">$10.00 MXN</div>
             <div class="qbar-w"><div id="qrb-d" class="qbar-f" style="width:100%"></div></div>
-            <button onclick="closeQR('d')" class="btn-sec" style="width:auto;padding:5px 16px;border-radius:999px;margin-top:0">Cancelar</button>
+            <button onclick="closeQR('d')" class="btn-sec" style="width:auto;padding:5px 16px;border-radius:999px">Cancelar</button>
           </div>
         </div>
         <div id="rec-d" style="display:none">
@@ -550,50 +340,45 @@ button,input,select{font-family:inherit;font-size:inherit}
               <button class="amt" onclick="setA('d',200)">$200</button>
               <button class="amt" onclick="setA('d',500)">$500</button>
             </div>
-            <input class="field" id="rad" type="number" value="100" min="50">
-            <button class="btn-pr" onclick="doRec('d')">✔ Confirmar recarga</button>
+            <input class="field" id="ra-d" type="number" value="100" min="50">
+            <button class="btn-go" onclick="doRec('d')">✔ Confirmar recarga</button>
             <button class="btn-sec" onclick="closeRec('d')">Cancelar</button>
           </div>
         </div>
         <div class="sec" style="margin-top:6px">Últimos movimientos</div>
-        <div class="tx-row"><div class="tx-ico" style="background:#dbeafe">🚌</div><div><div class="tx-n">Progreso 5</div><div class="tx-d">Hoy 14:32</div></div><div class="tx-a neg">−$5.00</div></div>
-        <div class="tx-row"><div class="tx-ico" style="background:#dbeafe">🚌</div><div><div class="tx-n">Uninay / UAN</div><div class="tx-d">Hoy 08:15</div></div><div class="tx-a neg">−$5.00</div></div>
-        <div class="tx-row"><div class="tx-ico" style="background:#dcfce7">➕</div><div><div class="tx-n">Recarga OXXO</div><div class="tx-d">Ayer 18:45</div></div><div class="tx-a pos">+$200.00</div></div>
-        <div class="tx-row"><div class="tx-ico" style="background:#dbeafe">🚌</div><div><div class="tx-n">Mololoa</div><div class="tx-d">Ayer 07:20</div></div><div class="tx-a neg">−$5.00</div></div>
+        <div>
+          <div class="tx-row"><div class="tx-ico" style="background:#dbeafe">🚌</div><div><div class="tx-n">Progreso 5</div><div class="tx-d">Hoy 14:32</div></div><div class="tx-a neg">−$10.00</div></div>
+          <div class="tx-row"><div class="tx-ico" style="background:#dbeafe">🚌</div><div><div class="tx-n">Acayapan</div><div class="tx-d">Hoy 08:15</div></div><div class="tx-a neg">−$10.00</div></div>
+          <div class="tx-row"><div class="tx-ico" style="background:#dcfce7">➕</div><div><div class="tx-n">Recarga OXXO</div><div class="tx-d">Ayer 18:45</div></div><div class="tx-a pos">+$200.00</div></div>
+          <div class="tx-row"><div class="tx-ico" style="background:#dbeafe">🚌</div><div><div class="tx-n">Uninay/UAN</div><div class="tx-d">Ayer 07:20</div></div><div class="tx-a neg">−$10.00</div></div>
+        </div>
       </div>
-
-    </div><!-- /p-cnt -->
+    </div>
   </aside>
-</div><!-- /body -->
-
-<!-- ════ MOBILE BOTTOM SHEET ════ -->
+</div>
+<!-- BOTTOM SHEET -->
 <div id="bsheet">
-  <!-- drag handle -->
-  <div class="sh-handle" id="shHandle">
-    <div class="sh-pill"></div>
-  </div>
+  <div class="sh-handle" onclick="toggleSheet()"><div class="sh-pill"></div></div>
   <div class="sh-hdr">
     <span class="sh-title" id="sh-lbl">Rutas de Tepic</span>
-    <button class="sh-toggle" id="sh-tog-btn" onclick="toggleSheet()">▲ Expandir</button>
+    <button class="hb" onclick="toggleSheet()" style="width:30px;height:30px;font-size:13px">✕</button>
   </div>
-  <div class="sh-body" id="sh-body">
-    <!-- Mapa (routes) -->
+  <div class="sh-body">
     <div id="sm-mapa">
       <div class="cr">
         <button class="cb d" onclick="setAll(false)">🚫 Quitar todas</button>
         <button class="cb s" onclick="setAll(true)">✅ Ver todas</button>
       </div>
       <div class="fr">
-        <button class="fc on" id="fbm" onclick="togFilter('bus')">🚌 Camiones</button>
-        <button class="fc on" id="fvm" onclick="togFilter('van')">🚐 Combis</button>
+        <button class="fc on" id="fc-b-m" onclick="toggleFilter('bus')">🚌 Camiones</button>
+        <button class="fc on" id="fc-v-m" onclick="toggleFilter('van')">🚐 Combis</button>
       </div>
       <div class="sec">Rutas — toca 👁 para ver solo esa</div>
-      <div id="rlm"></div>
+      <div id="rl-m"></div>
     </div>
-    <!-- Planear -->
     <div id="sm-planear" style="display:none">
-      <input class="field" id="orim" value="Calle Puebla / Centro" placeholder="Origen">
-      <select class="field" id="dstm">
+      <input class="field" id="ori-m" value="Calle Puebla / Centro" placeholder="Origen">
+      <select class="field" id="dst-m">
         <option value="uan">UAN — Universidad</option>
         <option value="hospital">Hospital Civil</option>
         <option value="central">Central de Autobuses</option>
@@ -602,26 +387,25 @@ button,input,select{font-family:inherit;font-size:inherit}
         <option value="xalisco">Xalisco</option>
         <option value="mercado">Mercado Central</option>
       </select>
-      <button class="btn-pr" onclick="calcRuta('m')">🔍 Buscar rutas</button>
-      <div id="rsm" style="display:none;margin-top:14px"><div class="sec">Opciones</div><div id="rcm"></div></div>
+      <button class="btn-go" onclick="calcRuta('m')">🔍 Buscar rutas</button>
+      <p style="font-size:.6875rem;color:var(--tx2);margin-top:8px;line-height:1.5">ℹ️ Rutas de referencia. Verificar en <a href="https://semovi.nayarit.gob.mx/muevete-transporte-publico/" target="_blank" style="color:var(--pr)">SEMOVI Nayarit</a></p>
+      <div id="rs-m" style="display:none;margin-top:14px"><div class="sec">Opciones</div><div id="rc-m"></div></div>
     </div>
-    <!-- Vivo -->
     <div id="sm-vivo" style="display:none">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
         <div class="live-pill"><span class="dot"></span>EN VIVO</div>
         <span style="font-size:.75rem;color:var(--tx2)">Hace <span id="ago-m">3</span>s</span>
       </div>
-      <div id="llm"></div>
+      <div id="ll-m"></div>
     </div>
-    <!-- Pago -->
     <div id="sm-pago" style="display:none">
       <div class="pay-card" style="margin-bottom:12px">
         <div class="pay-chip">⚡</div>
         <div class="pay-lbl">SEMOVI · Tepic Pay</div>
         <div class="pay-bal-sm">Saldo</div>
-        <div class="pay-bal" id="balm">$247.50</div>
+        <div class="pay-bal" id="bal-m">$247.50</div>
         <div class="pay-num">●●●● 4827</div>
-        <div class="std-badge">🎓 50% dto</div>
+        <div class="std-badge">🎓 50% desc.</div>
       </div>
       <div class="acts">
         <div class="act" onclick="showRec('m')"><div class="act-i">➕</div><div class="act-l">Recargar</div></div>
@@ -633,9 +417,9 @@ button,input,select{font-family:inherit;font-size:inherit}
           <div style="font-size:.875rem;font-weight:600">Código QR</div>
           <div style="font-size:.75rem;color:var(--tx2)">Válido <span id="qs-m">60</span>s</div>
           <div class="qr-cv"><canvas id="qrc-m" width="96" height="96"></canvas></div>
-          <div style="font-size:1.125rem;font-weight:700;margin:4px 0">$5.00 MXN</div>
+          <div style="font-size:1.125rem;font-weight:700;margin:4px 0">$10.00 MXN</div>
           <div class="qbar-w"><div id="qrb-m" class="qbar-f" style="width:100%"></div></div>
-          <button onclick="closeQR('m')" class="btn-sec" style="width:auto;padding:4px 14px;border-radius:999px;margin-top:0">Cancelar</button>
+          <button onclick="closeQR('m')" class="btn-sec" style="width:auto;padding:4px 14px;border-radius:999px">Cancelar</button>
         </div>
       </div>
       <div id="rec-m" style="display:none">
@@ -645,434 +429,240 @@ button,input,select{font-family:inherit;font-size:inherit}
             <button class="amt" onclick="setA('m',100)">$100</button>
             <button class="amt" onclick="setA('m',200)">$200</button>
           </div>
-          <input class="field" id="ram" type="number" value="100" min="50">
-          <button class="btn-pr" onclick="doRec('m')">✔ Confirmar</button>
+          <input class="field" id="ra-m" type="number" value="100" min="50">
+          <button class="btn-go" onclick="doRec('m')">✔ Confirmar</button>
           <button class="btn-sec" onclick="closeRec('m')">Cancelar</button>
         </div>
       </div>
     </div>
   </div>
 </div>
-
-<!-- ════ MOBILE BOTTOM NAV ════ -->
+<!-- BOTTOM NAV -->
 <nav class="bot-nav">
   <button class="bn on" id="bn-mapa"    onclick="swM('mapa')"><span class="bn-i">🗺️</span><span class="bn-l">Mapa</span></button>
   <button class="bn"    id="bn-planear" onclick="swM('planear')"><span class="bn-i">🔍</span><span class="bn-l">Planear</span></button>
   <button class="bn"    id="bn-vivo"    onclick="swM('vivo')"><span class="bn-i">📡</span><span class="bn-l">En Vivo</span></button>
   <button class="bn"    id="bn-pago"    onclick="swM('pago')"><span class="bn-i">💳</span><span class="bn-l">Pay</span></button>
 </nav>
-</div><!-- /app -->
+</div>
 <div id="toast"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
-/* ════════════════════════════════════════════════════
-   21 RUTAS REALES DE TEPIC — coordenadas siguiendo calles
-   Centro convergente: Calle Puebla / Presidencia ~[21.5078, -104.8948]
-   Av. Insurgentes (N-S): lng ≈ -104.892x
-   Av. México (E-W): lat ≈ 21.508x
-════════════════════════════════════════════════════ */
-const ROUTES=[
+// ─── RUTAS — basadas en nomenclatura oficial SEMOVI/Cual me Lleva Tepic ───
+const R=[
+// ── CAMIONES PRINCIPALES ──
+{id:'progreso1',name:'PROGRESO 1',type:'camion',color:'#16a34a',units:26,freq:'c/7 min',hours:'5:30–22:00',
+ coords:[[21.4972,-104.8895],[21.4988,-104.8904],[21.5005,-104.8912],[21.5020,-104.8918],[21.5035,-104.8924],[21.5050,-104.8930],[21.5062,-104.8936],[21.5074,-104.8942],[21.5083,-104.8948],[21.5090,-104.8954],[21.5098,-104.8960],[21.5106,-104.8966],[21.5113,-104.8971],[21.5120,-104.8976],[21.5128,-104.8982],[21.5136,-104.8987],[21.5145,-104.8993],[21.5153,-104.8997]],
+ stops:[{n:'Fracc. Los Progresos — Terminal',lat:21.4972,lng:-104.8895,next:'25 min'},{n:'Blvd. Luis D. Colosio',lat:21.5035,lng:-104.8924,next:'16 min'},{n:'Av. México / Insurgentes',lat:21.5083,lng:-104.8948,next:'9 min'},{n:'Calle Puebla — Centro',lat:21.5120,lng:-104.8976,next:'4 min'},{n:'UAN Ciudad Universitaria',lat:21.5153,lng:-104.8997,next:'1 min'}]},
 
-/* 1. PROGRESO 5 — Los Progresos (SE) → Av. México → Centro → UAN (NW) */
-{id:'p5',name:'PROGRESO 5',type:'camion',color:'#22c55e',units:28,freq:'c/8 min',hours:'5:30–22:00',
- coords:[
-  [21.4982,-104.8898],[21.4994,-104.8906],[21.5006,-104.8913],[21.5018,-104.8920],
-  [21.5030,-104.8925],[21.5042,-104.8928],[21.5052,-104.8931],[21.5062,-104.8934],
-  [21.5072,-104.8938],[21.5080,-104.8942],[21.5085,-104.8946],[21.5090,-104.8950],
-  [21.5094,-104.8954],[21.5098,-104.8958],[21.5101,-104.8962],[21.5104,-104.8966],
-  [21.5108,-104.8970],[21.5112,-104.8974],[21.5116,-104.8978],[21.5120,-104.8982],
-  [21.5126,-104.8986],[21.5132,-104.8990],[21.5138,-104.8993],[21.5144,-104.8996],[21.5150,-104.8999]
- ],
- stops:[{n:'Los Progresos — Terminal',lat:21.4982,lng:-104.8898,next:'22 min'},
-        {n:'Fracc. Ciudad del Valle',lat:21.5042,lng:-104.8928,next:'14 min'},
-        {n:'Av. México / Insurgentes',lat:21.5080,lng:-104.8942,next:'9 min'},
-        {n:'Calle Puebla — Nodo Principal',lat:21.5112,lng:-104.8974,next:'5 min'},
-        {n:'UAN Entrada Principal',lat:21.5150,lng:-104.8999,next:'1 min'}]},
+{id:'progreso2',name:'PROGRESO 2',type:'camion',color:'#15803d',units:24,freq:'c/8 min',hours:'5:30–22:00',
+ coords:[[21.4965,-104.8886],[21.4981,-104.8896],[21.4997,-104.8906],[21.5013,-104.8915],[21.5028,-104.8922],[21.5043,-104.8928],[21.5056,-104.8933],[21.5068,-104.8938],[21.5079,-104.8944],[21.5088,-104.8950],[21.5096,-104.8958],[21.5104,-104.8966],[21.5112,-104.8975],[21.5120,-104.8980]],
+ stops:[{n:'Progresos — Terminal Norte',lat:21.4965,lng:-104.8886,next:'22 min'},{n:'Ciudad del Valle',lat:21.5028,lng:-104.8922,next:'14 min'},{n:'Av. México / Puebla',lat:21.5079,lng:-104.8944,next:'7 min'},{n:'Calle Puebla — Centro',lat:21.5120,lng:-104.8980,next:'1 min'}]},
 
-/* 2. PROGRESO 1 — Variante Progresos (más al norte) */
-{id:'p1',name:'PROGRESO 1',type:'camion',color:'#16a34a',units:18,freq:'c/12 min',hours:'5:30–21:30',
- coords:[
-  [21.4965,-104.8870],[21.4978,-104.8882],[21.4992,-104.8892],[21.5005,-104.8900],
-  [21.5017,-104.8907],[21.5028,-104.8913],[21.5038,-104.8918],[21.5048,-104.8922],
-  [21.5058,-104.8927],[21.5068,-104.8932],[21.5076,-104.8937],[21.5082,-104.8942],
-  [21.5087,-104.8947],[21.5092,-104.8952],[21.5097,-104.8957],[21.5102,-104.8962],
-  [21.5108,-104.8968],[21.5115,-104.8973],[21.5122,-104.8978],[21.5130,-104.8984],
-  [21.5137,-104.8989],[21.5144,-104.8993],[21.5150,-104.8997]
- ],
- stops:[{n:'Progresos Norte — Terminal',lat:21.4965,lng:-104.8870,next:'20 min'},
-        {n:'Av. México / Progresos',lat:21.5038,lng:-104.8918,next:'12 min'},
-        {n:'Centro — Calle Puebla',lat:21.5097,lng:-104.8957,next:'5 min'},
-        {n:'UAN',lat:21.5150,lng:-104.8997,next:'1 min'}]},
+{id:'progreso5',name:'PROGRESO 5',type:'camion',color:'#22c55e',units:28,freq:'c/8 min',hours:'5:30–22:00',
+ coords:[[21.4980,-104.8900],[21.4993,-104.8908],[21.5005,-104.8916],[21.5018,-104.8922],[21.5030,-104.8926],[21.5042,-104.8929],[21.5052,-104.8932],[21.5062,-104.8936],[21.5072,-104.8940],[21.5082,-104.8945],[21.5092,-104.8950],[21.5100,-104.8956],[21.5106,-104.8962],[21.5111,-104.8967],[21.5116,-104.8972],[21.5120,-104.8977],[21.5125,-104.8981],[21.5130,-104.8986],[21.5135,-104.8990],[21.5140,-104.8994],[21.5145,-104.8997],[21.5150,-104.9000]],
+ stops:[{n:'Los Progresos — Terminal',lat:21.4980,lng:-104.8900,next:'22 min'},{n:'Ciudad del Valle',lat:21.5042,lng:-104.8929,next:'14 min'},{n:'Av. México / Insurgentes',lat:21.5082,lng:-104.8945,next:'9 min'},{n:'Calle Puebla — Centro',lat:21.5116,lng:-104.8972,next:'5 min'},{n:'UAN Entrada Principal',lat:21.5150,lng:-104.9000,next:'1 min'}]},
 
-/* 3. MOLOLOA — Tierra Mololoa (SO) → Libramiento → Centro */
-{id:'mol',name:'MOLOLOA',type:'camion',color:'#3b82f6',units:18,freq:'c/12 min',hours:'6:00–21:00',
- coords:[
-  [21.4798,-104.9198],[21.4826,-104.9160],[21.4854,-104.9122],[21.4881,-104.9086],
-  [21.4908,-104.9052],[21.4934,-104.9019],[21.4959,-104.8988],[21.4982,-104.8960],
-  [21.5002,-104.8948],[21.5018,-104.8946],[21.5033,-104.8944],[21.5047,-104.8942],
-  [21.5060,-104.8941],[21.5070,-104.8941],[21.5078,-104.8942],[21.5085,-104.8942],
-  [21.5092,-104.8940],[21.5098,-104.8937],[21.5104,-104.8934]
- ],
- stops:[{n:'Tierra Mololoa — Terminal',lat:21.4798,lng:-104.9198,next:'26 min'},
-        {n:'Libramiento SO',lat:21.4854,lng:-104.9122,next:'18 min'},
-        {n:'Col. El Molino',lat:21.4959,lng:-104.8988,next:'10 min'},
-        {n:'Centro — Calle Puebla',lat:21.5078,lng:-104.8942,next:'1 min'}]},
+{id:'mololoa',name:'MOLOLOA',type:'camion',color:'#3b82f6',units:18,freq:'c/12 min',hours:'6:00–21:00',
+ coords:[[21.4800,-104.9200],[21.4828,-104.9162],[21.4856,-104.9125],[21.4883,-104.9090],[21.4910,-104.9056],[21.4937,-104.9022],[21.4963,-104.8990],[21.4988,-104.8962],[21.5010,-104.8950],[21.5028,-104.8945],[21.5045,-104.8942],[21.5060,-104.8940],[21.5072,-104.8940],[21.5082,-104.8939],[21.5092,-104.8936],[21.5100,-104.8933]],
+ stops:[{n:'Tierra Mololoa — Terminal',lat:21.4800,lng:-104.9200,next:'26 min'},{n:'Libramiento Poniente Sur',lat:21.4856,lng:-104.9125,next:'18 min'},{n:'Colonia El Molino',lat:21.4963,lng:-104.8990,next:'10 min'},{n:'Hospital Civil (paso)',lat:21.5045,lng:-104.8942,next:'5 min'},{n:'Centro — Calle Puebla',lat:21.5100,lng:-104.8933,next:'1 min'}]},
 
-/* 4. AGUACATE — Sur → Centro → ISSSTE Cantera (Norte) */
-{id:'agu',name:'AGUACATE',type:'camion',color:'#a855f7',units:16,freq:'c/15 min',hours:'5:45–21:00',
- coords:[
-  [21.4902,-104.9098],[21.4927,-104.9070],[21.4952,-104.9042],[21.4976,-104.9015],
-  [21.4998,-104.8988],[21.5018,-104.8965],[21.5035,-104.8952],[21.5050,-104.8947],
-  [21.5062,-104.8944],[21.5072,-104.8943],[21.5080,-104.8943],[21.5088,-104.8940],
-  [21.5096,-104.8932],[21.5106,-104.8920],[21.5116,-104.8906],[21.5126,-104.8892],
-  [21.5136,-104.8877],[21.5145,-104.8862],[21.5153,-104.8848],[21.5161,-104.8836]
- ],
- stops:[{n:'Col. Aguacate — Terminal',lat:21.4902,lng:-104.9098,next:'22 min'},
-        {n:'Sur de Av. Insurgentes',lat:21.4976,lng:-104.9015,next:'14 min'},
-        {n:'Centro — Calle Puebla',lat:21.5072,lng:-104.8943,next:'7 min'},
-        {n:'Zona Hospitalaria',lat:21.5126,lng:-104.8892,next:'3 min'},
-        {n:'ISSSTE Cantera',lat:21.5161,lng:-104.8836,next:'1 min'}]},
+{id:'aguacate',name:'AGUACATE',type:'camion',color:'#a855f7',units:16,freq:'c/15 min',hours:'5:45–21:00',
+ coords:[[21.4900,-104.9100],[21.4926,-104.9070],[21.4952,-104.9040],[21.4977,-104.9012],[21.5000,-104.8985],[21.5020,-104.8962],[21.5038,-104.8952],[21.5055,-104.8947],[21.5068,-104.8944],[21.5078,-104.8942],[21.5088,-104.8937],[21.5098,-104.8928],[21.5110,-104.8914],[21.5122,-104.8898],[21.5134,-104.8882],[21.5144,-104.8868],[21.5154,-104.8856],[21.5163,-104.8846]],
+ stops:[{n:'Col. Aguacate / Ahuacate — Terminal',lat:21.4900,lng:-104.9100,next:'22 min'},{n:'Av. Insurgentes Sur',lat:21.4977,lng:-104.9012,next:'14 min'},{n:'Centro — Calle Puebla',lat:21.5068,lng:-104.8944,next:'7 min'},{n:'Zona Hospitalaria Cantera',lat:21.5134,lng:-104.8882,next:'3 min'},{n:'ISSSTE / Cantera — Terminal',lat:21.5163,lng:-104.8846,next:'1 min'}]},
 
-/* 5. MORELOS — Col. Morelos (SO) → Centro → UAN */
-{id:'mor',name:'MORELOS',type:'camion',color:'#0d9488',units:20,freq:'c/8 min',hours:'6:00–22:00',
- coords:[
-  [21.4952,-104.9048],[21.4968,-104.9026],[21.4984,-104.9005],[21.5000,-104.8984],
-  [21.5014,-104.8967],[21.5026,-104.8956],[21.5038,-104.8949],[21.5050,-104.8946],
-  [21.5062,-104.8944],[21.5072,-104.8944],[21.5080,-104.8946],[21.5088,-104.8952],
-  [21.5096,-104.8958],[21.5104,-104.8964],[21.5112,-104.8970],[21.5120,-104.8976],
-  [21.5128,-104.8982],[21.5136,-104.8988],[21.5144,-104.8993],[21.5150,-104.8997]
- ],
- stops:[{n:'Col. Morelos — Terminal',lat:21.4952,lng:-104.9048,next:'20 min'},
-        {n:'Av. Alemania / Morelos',lat:21.4984,lng:-104.9005,next:'13 min'},
-        {n:'Centro — Calle Puebla',lat:21.5072,lng:-104.8944,next:'6 min'},
-        {n:'UAN Ciudad Universitaria',lat:21.5150,lng:-104.8997,next:'1 min'}]},
+{id:'xalisco',name:'TEPIC – XALISCO',type:'camion',color:'#374151',units:25,freq:'c/15 min',hours:'5:00–22:30',
+ coords:[[21.5080,-104.8950],[21.5092,-104.8932],[21.5104,-104.8913],[21.5116,-104.8893],[21.5128,-104.8872],[21.5140,-104.8850],[21.5151,-104.8829],[21.5161,-104.8808],[21.5171,-104.8787],[21.5180,-104.8766],[21.5188,-104.8745],[21.5195,-104.8724],[21.5201,-104.8703],[21.5207,-104.8682],[21.5212,-104.8660]],
+ stops:[{n:'Centro Tepic — Nodo Calle Puebla',lat:21.5080,lng:-104.8950,next:'30 min'},{n:'Blvd. Tepic-Xalisco km 4',lat:21.5151,lng:-104.8829,next:'20 min'},{n:'Blvd. Tepic-Xalisco km 8',lat:21.5195,lng:-104.8724,next:'10 min'},{n:'Xalisco — Terminal',lat:21.5212,lng:-104.8660,next:'1 min'}]},
 
-/* 6. ALEMANIA — Col. Alemania (NE) → Av. México → Centro */
-{id:'ale',name:'ALEMANIA',type:'camion',color:'#15803d',units:10,freq:'c/15 min',hours:'6:30–21:00',
- coords:[
-  [21.5330,-104.8623],[21.5307,-104.8643],[21.5282,-104.8663],[21.5257,-104.8683],
-  [21.5231,-104.8703],[21.5205,-104.8724],[21.5179,-104.8745],[21.5153,-104.8766],
-  [21.5128,-104.8787],[21.5104,-104.8810],[21.5090,-104.8836],[21.5082,-104.8860],
-  [21.5078,-104.8890],[21.5076,-104.8920],[21.5075,-104.8942]
- ],
- stops:[{n:'Col. Alemania — Terminal',lat:21.5330,lng:-104.8623,next:'20 min'},
-        {n:'Av. México / Alemania',lat:21.5257,lng:-104.8683,next:'12 min'},
-        {n:'Av. Insurgentes / México',lat:21.5128,lng:-104.8787,next:'6 min'},
-        {n:'Centro — Calle Puebla',lat:21.5075,lng:-104.8942,next:'1 min'}]},
+{id:'acayapan',name:'ACAYAPAN',type:'camion',color:'#f97316',units:18,freq:'c/10 min',hours:'5:30–22:00',
+ coords:[[21.4820,-104.8870],[21.4843,-104.8870],[21.4865,-104.8870],[21.4888,-104.8870],[21.4910,-104.8870],[21.4932,-104.8872],[21.4953,-104.8876],[21.4972,-104.8882],[21.4990,-104.8889],[21.5005,-104.8898],[21.5018,-104.8908],[21.5030,-104.8918],[21.5042,-104.8928],[21.5055,-104.8936],[21.5066,-104.8943],[21.5075,-104.8948]],
+ stops:[{n:'Col. Acayapan — Terminal',lat:21.4820,lng:-104.8870,next:'24 min'},{n:'Blvd. Luis D. Colosio / Sur',lat:21.4888,lng:-104.8870,next:'16 min'},{n:'Col. 2 de Agosto',lat:21.4953,lng:-104.8876,next:'9 min'},{n:'Av. Insurgentes / Central',lat:21.5018,lng:-104.8908,next:'4 min'},{n:'Centro — Calle Puebla',lat:21.5075,lng:-104.8948,next:'1 min'}]},
 
-/* 7. TEPIC-XALISCO — Centro → Blvd. Tepic-Xalisco → Xalisco */
-{id:'xal',name:'TEPIC–XALISCO',type:'camion',color:'#374151',units:25,freq:'c/15 min',hours:'5:00–22:30',
- coords:[
-  [21.5078,-104.8948],[21.5090,-104.8930],[21.5102,-104.8910],[21.5114,-104.8890],
-  [21.5126,-104.8870],[21.5137,-104.8848],[21.5148,-104.8827],[21.5158,-104.8806],
-  [21.5168,-104.8785],[21.5177,-104.8764],[21.5185,-104.8743],[21.5192,-104.8722],
-  [21.5198,-104.8701],[21.5203,-104.8680],[21.5208,-104.8659],[21.5212,-104.8638]
- ],
- stops:[{n:'Centro Tepic — Nodo Puebla',lat:21.5078,lng:-104.8948,next:'30 min'},
-        {n:'Blvd. Tepic-Xalisco km 4',lat:21.5148,lng:-104.8827,next:'20 min'},
-        {n:'Blvd. Tepic-Xalisco km 8',lat:21.5192,lng:-104.8722,next:'10 min'},
-        {n:'Xalisco — Terminal',lat:21.5212,lng:-104.8638,next:'1 min'}]},
+{id:'colosio',name:'COLOSIO / OJO DE AGUA',type:'camion',color:'#92400e',units:10,freq:'c/18 min',hours:'6:00–20:30',
+ coords:[[21.4808,-104.8968],[21.4833,-104.8962],[21.4858,-104.8955],[21.4882,-104.8950],[21.4906,-104.8944],[21.4929,-104.8939],[21.4952,-104.8935],[21.4973,-104.8930],[21.4994,-104.8926],[21.5012,-104.8924],[21.5030,-104.8924],[21.5047,-104.8928],[21.5060,-104.8934],[21.5070,-104.8942],[21.5077,-104.8948]],
+ stops:[{n:'Col. Colosio — Terminal',lat:21.4808,lng:-104.8968,next:'20 min'},{n:'Col. Ojo de Agua',lat:21.4858,lng:-104.8955,next:'14 min'},{n:'Col. 2 de Agosto',lat:21.4952,lng:-104.8935,next:'8 min'},{n:'Centro — Calle Puebla',lat:21.5077,lng:-104.8948,next:'1 min'}]},
 
-/* 8. BELLAVISTA — Centro → Norte/NE → Fracc. Bellavista */
-{id:'bel',name:'BELLAVISTA',type:'camion',color:'#4f46e5',units:14,freq:'c/12 min',hours:'6:00–21:30',
- coords:[
-  [21.5078,-104.8948],[21.5090,-104.8929],[21.5102,-104.8909],[21.5115,-104.8888],
-  [21.5128,-104.8866],[21.5141,-104.8844],[21.5154,-104.8821],[21.5168,-104.8798],
-  [21.5182,-104.8776],[21.5196,-104.8754],[21.5210,-104.8732]
- ],
- stops:[{n:'Centro / Calle Puebla',lat:21.5078,lng:-104.8948,next:'16 min'},
-        {n:'Parque de la Madre',lat:21.5128,lng:-104.8866,next:'9 min'},
-        {n:'Av. México / Bellavista',lat:21.5182,lng:-104.8776,next:'4 min'},
-        {n:'Fracc. Bellavista — Terminal',lat:21.5210,lng:-104.8732,next:'1 min'}]},
+{id:'ruta151',name:'RUTA 15-1 / ESTADIOS',type:'camion',color:'#f472b6',units:16,freq:'c/15 min',hours:'5:45–22:00',
+ coords:[[21.5265,-104.8598],[21.5248,-104.8626],[21.5231,-104.8654],[21.5214,-104.8682],[21.5197,-104.8710],[21.5178,-104.8737],[21.5158,-104.8763],[21.5136,-104.8787],[21.5114,-104.8810],[21.5093,-104.8832],[21.5078,-104.8855],[21.5076,-104.8882],[21.5075,-104.8910],[21.5075,-104.8938]],
+ stops:[{n:'Unidad Deportiva / Estadios — Terminal',lat:21.5265,lng:-104.8598,next:'18 min'},{n:'Av. Insurgentes / Estadios',lat:21.5214,lng:-104.8682,next:'12 min'},{n:'Insurgentes / México',lat:21.5093,lng:-104.8832,next:'5 min'},{n:'Centro — Calle Puebla',lat:21.5075,lng:-104.8938,next:'1 min'}]},
 
-/* 9. LA CRUZ — Col. La Cruz (O) → Libramiento → Centro */
-{id:'lc',name:'LA CRUZ',type:'camion',color:'#6b7280',units:10,freq:'c/15 min',hours:'6:00–20:30',
- coords:[
-  [21.5002,-104.9098],[21.5016,-104.9072],[21.5028,-104.9048],[21.5038,-104.9024],
-  [21.5047,-104.9002],[21.5054,-104.8982],[21.5060,-104.8964],[21.5064,-104.8952],[21.5072,-104.8946]
- ],
- stops:[{n:'Col. La Cruz — Terminal',lat:21.5002,lng:-104.9098,next:'16 min'},
-        {n:'Calle Veracruz',lat:21.5038,lng:-104.9024,next:'10 min'},
-        {n:'Centro — Calle Puebla',lat:21.5072,lng:-104.8946,next:'1 min'}]},
+{id:'indeco1',name:'INDECO 1',type:'camion',color:'#0284c7',units:20,freq:'c/10 min',hours:'5:45–21:30',
+ coords:[[21.5290,-104.9160],[21.5275,-104.9128],[21.5260,-104.9096],[21.5244,-104.9065],[21.5228,-104.9036],[21.5210,-104.9010],[21.5192,-104.8988],[21.5173,-104.8970],[21.5154,-104.8957],[21.5135,-104.8948],[21.5116,-104.8943],[21.5097,-104.8942],[21.5082,-104.8945]],
+ stops:[{n:'Indeco — Terminal Norte',lat:21.5290,lng:-104.9160,next:'24 min'},{n:'Libramiento Poniente',lat:21.5260,lng:-104.9096,next:'16 min'},{n:'Col. Burócratas Federal',lat:21.5173,lng:-104.8970,next:'9 min'},{n:'Av. Insurgentes Norte',lat:21.5116,lng:-104.8943,next:'4 min'},{n:'Centro — Calle Puebla',lat:21.5082,lng:-104.8945,next:'1 min'}]},
 
-/* 10. UNINAY / UNIVERSIDAD — Agrónomos ↔ UAN */
-{id:'uni',name:'UNINAY / UNIVERSIDAD',type:'camion',color:'#06b6d4',units:16,freq:'c/10 min',hours:'6:00–22:00',
- coords:[
-  [21.5380,-104.9085],[21.5358,-104.9062],[21.5334,-104.9039],[21.5310,-104.9018],
-  [21.5286,-104.8998],[21.5262,-104.8979],[21.5238,-104.8962],[21.5214,-104.8947],
-  [21.5190,-104.8936],[21.5166,-104.8929],[21.5144,-104.8929],[21.5124,-104.8934],
-  [21.5106,-104.8944],[21.5096,-104.8956],[21.5098,-104.8972],[21.5107,-104.8985],
-  [21.5118,-104.8994],[21.5132,-104.8996],[21.5144,-104.8996],[21.5154,-104.8997]
- ],
- stops:[{n:'Agrónomos — Terminal',lat:21.5380,lng:-104.9085,next:'26 min'},
-        {n:'Insurgentes / Agrónomos',lat:21.5310,lng:-104.9018,next:'17 min'},
-        {n:'Centro / Plaza Antigua',lat:21.5166,lng:-104.8929,next:'10 min'},
-        {n:'Hospital Civil (paso)',lat:21.5107,lng:-104.8985,next:'4 min'},
-        {n:'UAN Ciudad Universitaria',lat:21.5154,lng:-104.8997,next:'1 min'}]},
+{id:'indeco2',name:'INDECO 2',type:'camion',color:'#0369a1',units:18,freq:'c/12 min',hours:'5:45–21:30',
+ coords:[[21.5310,-104.9180],[21.5294,-104.9148],[21.5278,-104.9116],[21.5261,-104.9085],[21.5244,-104.9055],[21.5226,-104.9028],[21.5207,-104.9003],[21.5188,-104.8981],[21.5168,-104.8963],[21.5148,-104.8950],[21.5128,-104.8942],[21.5108,-104.8940],[21.5090,-104.8942],[21.5082,-104.8944]],
+ stops:[{n:'Indeco — Terminal Sur',lat:21.5310,lng:-104.9180,next:'26 min'},{n:'Libramiento Poniente / Burócratas',lat:21.5278,lng:-104.9116,next:'17 min'},{n:'SEMOVI / Av. Rey Nayar',lat:21.5188,lng:-104.8981,next:'8 min'},{n:'Centro — Calle Puebla',lat:21.5082,lng:-104.8944,next:'1 min'}]},
 
-/* 11. AGRONOMOS-UAN — Combi larga ~24km */
-{id:'agr',name:'AGRÓNOMOS-UAN',type:'combi',color:'#0891b2',units:14,freq:'c/12 min',hours:'6:00–21:00',
- coords:[
-  [21.5420,-104.9120],[21.5398,-104.9095],[21.5374,-104.9070],[21.5350,-104.9046],
-  [21.5326,-104.9024],[21.5302,-104.9004],[21.5278,-104.8985],[21.5254,-104.8968],
-  [21.5230,-104.8954],[21.5206,-104.8942],[21.5182,-104.8933],[21.5158,-104.8929],
-  [21.5136,-104.8930],[21.5116,-104.8936],[21.5100,-104.8944],[21.5092,-104.8955],
-  [21.5094,-104.8968],[21.5102,-104.8979],[21.5114,-104.8988],[21.5128,-104.8993],
-  [21.5142,-104.8995],[21.5154,-104.8997]
- ],
- stops:[{n:'Agrónomos Norte — Terminal',lat:21.5420,lng:-104.9120,next:'28 min'},
-        {n:'Av. Insurgentes / Agrónomos',lat:21.5326,lng:-104.9024,next:'19 min'},
-        {n:'Centro — Plaza Antigua',lat:21.5158,lng:-104.8929,next:'10 min'},
-        {n:'UAN',lat:21.5154,lng:-104.8997,next:'1 min'}]},
+// ── COMBIS ──
+{id:'morelos',name:'MORELOS',type:'combi',color:'#0d9488',units:20,freq:'c/8 min',hours:'6:00–22:00',
+ coords:[[21.4950,-104.9050],[21.4967,-104.9026],[21.4984,-104.9003],[21.5000,-104.8982],[21.5016,-104.8965],[21.5030,-104.8955],[21.5044,-104.8949],[21.5056,-104.8946],[21.5068,-104.8945],[21.5078,-104.8948],[21.5088,-104.8956],[21.5098,-104.8963],[21.5110,-104.8971],[21.5120,-104.8978],[21.5130,-104.8985],[21.5140,-104.8991],[21.5150,-104.8997]],
+ stops:[{n:'Col. Morelos — Terminal',lat:21.4950,lng:-104.9050,next:'20 min'},{n:'Av. Alemana / Morelos',lat:21.4984,lng:-104.9003,next:'13 min'},{n:'Centro — Calle Puebla',lat:21.5068,lng:-104.8945,next:'6 min'},{n:'UAN Ciudad Universitaria',lat:21.5150,lng:-104.8997,next:'1 min'}]},
 
-/* 12. ALLENDE — Camión clásico, eje norte-sur por Av. Allende */
-{id:'all',name:'ALLENDE',type:'camion',color:'#dc2626',units:22,freq:'c/10 min',hours:'5:30–22:00',
- coords:[
-  [21.5360,-104.8820],[21.5335,-104.8830],[21.5308,-104.8838],[21.5281,-104.8845],
-  [21.5254,-104.8850],[21.5227,-104.8854],[21.5200,-104.8857],[21.5173,-104.8860],
-  [21.5146,-104.8864],[21.5120,-104.8868],[21.5095,-104.8872],[21.5078,-104.8878],
-  [21.5072,-104.8892],[21.5070,-104.8910],[21.5072,-104.8930],[21.5076,-104.8948]
- ],
- stops:[{n:'Terminal Norte — Allende',lat:21.5360,lng:-104.8820,next:'22 min'},
-        {n:'Av. Allende / México',lat:21.5254,lng:-104.8850,next:'14 min'},
-        {n:'Av. Insurgentes / Allende',lat:21.5095,lng:-104.8872,next:'6 min'},
-        {n:'Centro — Calle Puebla',lat:21.5076,lng:-104.8948,next:'1 min'}]},
+{id:'bellavista',name:'BELLAVISTA',type:'combi',color:'#4f46e5',units:14,freq:'c/12 min',hours:'6:00–21:30',
+ coords:[[21.5080,-104.8950],[21.5092,-104.8930],[21.5105,-104.8910],[21.5118,-104.8888],[21.5131,-104.8866],[21.5144,-104.8844],[21.5157,-104.8822],[21.5170,-104.8800],[21.5184,-104.8778],[21.5197,-104.8756],[21.5210,-104.8734]],
+ stops:[{n:'Centro / Calle Puebla',lat:21.5080,lng:-104.8950,next:'16 min'},{n:'Parque de la Madre',lat:21.5131,lng:-104.8866,next:'10 min'},{n:'Av. México / Bellavista',lat:21.5184,lng:-104.8778,next:'4 min'},{n:'Fracc. Bellavista — Terminal',lat:21.5210,lng:-104.8734,next:'1 min'}]},
 
-/* 13. AMADO NERVO-UAN — Combi universitaria */
-{id:'amn',name:'AMADO NERVO-UAN',type:'combi',color:'#7c3aed',units:12,freq:'c/10 min',hours:'6:00–22:00',
- coords:[
-  [21.5078,-104.8948],[21.5080,-104.8966],[21.5082,-104.8982],[21.5086,-104.8996],
-  [21.5092,-104.9008],[21.5100,-104.9018],[21.5110,-104.9025],[21.5122,-104.9028],
-  [21.5134,-104.9028],[21.5144,-104.9025],[21.5152,-104.9018],[21.5158,-104.9008],
-  [21.5162,-104.8998],[21.5163,-104.8988],[21.5160,-104.8980]
- ],
- stops:[{n:'Centro — Calle Puebla',lat:21.5078,lng:-104.8948,next:'15 min'},
-        {n:'Hospital Civil',lat:21.5100,lng:-104.9018,next:'9 min'},
-        {n:'Amado Nervo / UAN',lat:21.5144,lng:-104.9025,next:'4 min'},
-        {n:'UAN — Entrada',lat:21.5160,lng:-104.8980,next:'1 min'}]},
+{id:'lacrus',name:'LA CRUZ',type:'combi',color:'#6b7280',units:10,freq:'c/15 min',hours:'6:00–20:30',
+ coords:[[21.5000,-104.9100],[21.5014,-104.9074],[21.5026,-104.9048],[21.5037,-104.9023],[21.5046,-104.9000],[21.5054,-104.8980],[21.5060,-104.8962],[21.5065,-104.8950],[21.5072,-104.8948]],
+ stops:[{n:'Col. La Cruz — Terminal',lat:21.5000,lng:-104.9100,next:'16 min'},{n:'Calle Veracruz',lat:21.5037,lng:-104.9023,next:'10 min'},{n:'Centro — Calle Puebla',lat:21.5072,lng:-104.8948,next:'1 min'}]},
 
-/* 14. CANTERAS — Centro → ISSSTE Cantera */
-{id:'can',name:'CANTERAS',type:'camion',color:'#ea580c',units:12,freq:'c/15 min',hours:'6:00–21:00',
- coords:[
-  [21.5078,-104.8948],[21.5082,-104.8930],[21.5088,-104.8912],[21.5096,-104.8896],
-  [21.5106,-104.8880],[21.5116,-104.8864],[21.5126,-104.8848],[21.5136,-104.8832],
-  [21.5145,-104.8817],[21.5154,-104.8803],[21.5162,-104.8790]
- ],
- stops:[{n:'Centro — Calle Puebla',lat:21.5078,lng:-104.8948,next:'18 min'},
-        {n:'Av. Insurgentes / Canteras',lat:21.5106,lng:-104.8880,next:'11 min'},
-        {n:'ISSSTE Cantera',lat:21.5154,lng:-104.8803,next:'1 min'}]},
+{id:'llanitos',name:'LLANITOS',type:'combi',color:'#d97706',units:12,freq:'c/15 min',hours:'6:30–20:30',
+ coords:[[21.5448,-104.8912],[21.5422,-104.8913],[21.5395,-104.8913],[21.5368,-104.8913],[21.5340,-104.8912],[21.5312,-104.8912],[21.5284,-104.8913],[21.5256,-104.8915],[21.5228,-104.8917],[21.5200,-104.8920],[21.5172,-104.8924],[21.5144,-104.8928],[21.5116,-104.8932],[21.5090,-104.8936],[21.5075,-104.8948]],
+ stops:[{n:'Fracc. Llanitos — Terminal',lat:21.5448,lng:-104.8912,next:'22 min'},{n:'Libramiento Norte / Llanitos',lat:21.5368,lng:-104.8913,next:'14 min'},{n:'Av. Insurgentes Norte',lat:21.5228,lng:-104.8917,next:'7 min'},{n:'Centro — Calle Puebla',lat:21.5075,lng:-104.8948,next:'1 min'}]},
 
-/* 15. 2 DE AGOSTO / COLOSIO — Sur → Centro */
-{id:'cag',name:'2 DE AGOSTO / COLOSIO',type:'camion',color:'#92400e',units:10,freq:'c/18 min',hours:'6:00–20:30',
- coords:[
-  [21.4810,-104.8966],[21.4834,-104.8960],[21.4858,-104.8954],[21.4881,-104.8948],
-  [21.4904,-104.8942],[21.4927,-104.8937],[21.4949,-104.8933],[21.4970,-104.8930],
-  [21.4990,-104.8928],[21.5008,-104.8926],[21.5025,-104.8926],[21.5040,-104.8928],
-  [21.5053,-104.8933],[21.5063,-104.8940],[21.5072,-104.8946]
- ],
- stops:[{n:'Col. Colosio — Terminal',lat:21.4810,lng:-104.8966,next:'20 min'},
-        {n:'Col. Ojo de Agua',lat:21.4858,lng:-104.8954,next:'14 min'},
-        {n:'Col. 2 de Agosto',lat:21.4949,lng:-104.8933,next:'8 min'},
-        {n:'Centro — Calle Puebla',lat:21.5072,lng:-104.8946,next:'1 min'}]},
+{id:'sauces',name:'SAUCES',type:'combi',color:'#84cc16',units:14,freq:'c/12 min',hours:'6:00–21:00',
+ coords:[[21.5148,-104.9378],[21.5150,-104.9332],[21.5152,-104.9285],[21.5153,-104.9238],[21.5154,-104.9192],[21.5153,-104.9148],[21.5150,-104.9105],[21.5144,-104.9064],[21.5135,-104.9026],[21.5122,-104.8994],[21.5108,-104.8970],[21.5094,-104.8956],[21.5082,-104.8948]],
+ stops:[{n:'Infonavit Los Sauces — Terminal',lat:21.5148,lng:-104.9378,next:'22 min'},{n:'Libramiento Poniente',lat:21.5153,lng:-104.9238,next:'14 min'},{n:'Hospital Civil (paso)',lat:21.5144,lng:-104.9064,next:'7 min'},{n:'Centro — Calle Puebla',lat:21.5082,lng:-104.8948,next:'1 min'}]},
 
-/* 16. SAUCES — Infonavit Los Sauces (O) → Libramiento → Centro */
-{id:'sau',name:'SAUCES',type:'camion',color:'#84cc16',units:14,freq:'c/12 min',hours:'6:00–21:00',
- coords:[
-  [21.5150,-104.9376],[21.5151,-104.9330],[21.5152,-104.9283],[21.5153,-104.9236],
-  [21.5153,-104.9189],[21.5152,-104.9144],[21.5148,-104.9101],[21.5141,-104.9060],
-  [21.5131,-104.9022],[21.5118,-104.8990],[21.5104,-104.8966],[21.5090,-104.8952],
-  [21.5080,-104.8946]
- ],
- stops:[{n:'Infonavit Los Sauces — Terminal',lat:21.5150,lng:-104.9376,next:'22 min'},
-        {n:'Libramiento Poniente',lat:21.5153,lng:-104.9236,next:'14 min'},
-        {n:'Hospital Civil (paso)',lat:21.5141,lng:-104.9060,next:'7 min'},
-        {n:'Centro — Calle Puebla',lat:21.5080,lng:-104.8946,next:'1 min'}]},
+{id:'uninay',name:'UNINAY / AGRÓNOMOS-UAN',type:'combi',color:'#06b6d4',units:16,freq:'c/10 min',hours:'6:00–22:00',
+ coords:[[21.5382,-104.9088],[21.5358,-104.9064],[21.5333,-104.9041],[21.5308,-104.9019],[21.5283,-104.8999],[21.5258,-104.8980],[21.5233,-104.8963],[21.5208,-104.8948],[21.5183,-104.8936],[21.5158,-104.8930],[21.5135,-104.8930],[21.5114,-104.8936],[21.5096,-104.8946],[21.5088,-104.8960],[21.5090,-104.8978],[21.5100,-104.8992],[21.5112,-104.9002],[21.5128,-104.9003],[21.5143,-104.9001],[21.5155,-104.9000]],
+ stops:[{n:'Agrónomos — Terminal',lat:21.5382,lng:-104.9088,next:'26 min'},{n:'Insurgentes / Agrónomos',lat:21.5308,lng:-104.9019,next:'17 min'},{n:'Centro / Plaza Antigua',lat:21.5158,lng:-104.8930,next:'10 min'},{n:'Hospital Civil (paso)',lat:21.5100,lng:-104.8992,next:'5 min'},{n:'UAN Ciudad Universitaria',lat:21.5155,lng:-104.9000,next:'1 min'}]},
 
-/* 17. ESTADIOS — Centro → Unidad Deportiva / Estadios */
-{id:'est',name:'ESTADIOS',type:'camion',color:'#ca8a04',units:14,freq:'c/15 min',hours:'6:00–21:30',
- coords:[
-  [21.5078,-104.8948],[21.5090,-104.8928],[21.5104,-104.8908],[21.5118,-104.8888],
-  [21.5132,-104.8868],[21.5146,-104.8848],[21.5160,-104.8826],[21.5174,-104.8804],
-  [21.5188,-104.8782],[21.5202,-104.8758],[21.5214,-104.8736],[21.5226,-104.8714],
-  [21.5238,-104.8690],[21.5248,-104.8668],[21.5258,-104.8646],[21.5265,-104.8622]
- ],
- stops:[{n:'Centro — Calle Puebla',lat:21.5078,lng:-104.8948,next:'20 min'},
-        {n:'Av. México / Estadios',lat:21.5146,lng:-104.8848,next:'12 min'},
-        {n:'Av. Insurgentes / Estadios',lat:21.5214,lng:-104.8736,next:'6 min'},
-        {n:'Unidad Deportiva / Estadios',lat:21.5265,lng:-104.8622,next:'1 min'}]},
+{id:'alemania',name:'ALEMANIA',type:'combi',color:'#15803d',units:10,freq:'c/15 min',hours:'6:30–21:00',
+ coords:[[21.5328,-104.8625],[21.5305,-104.8644],[21.5280,-104.8663],[21.5255,-104.8682],[21.5228,-104.8702],[21.5202,-104.8722],[21.5176,-104.8743],[21.5150,-104.8764],[21.5124,-104.8786],[21.5100,-104.8810],[21.5086,-104.8836],[21.5080,-104.8862],[21.5078,-104.8894],[21.5076,-104.8924],[21.5075,-104.8948]],
+ stops:[{n:'Col. Alemania — Terminal',lat:21.5328,lng:-104.8625,next:'20 min'},{n:'Av. México / Alemania',lat:21.5255,lng:-104.8682,next:'13 min'},{n:'Av. Insurgentes / México',lat:21.5124,lng:-104.8786,next:'7 min'},{n:'Centro — Calle Puebla',lat:21.5075,lng:-104.8948,next:'1 min'}]},
 
-/* 18. VÍA VERACRUZ — Centro → Calle Veracruz → Norte */
-{id:'ver',name:'VÍA VERACRUZ',type:'camion',color:'#78350f',units:8,freq:'c/18 min',hours:'6:30–20:00',
- coords:[
-  [21.5078,-104.8948],[21.5076,-104.8964],[21.5074,-104.8980],[21.5072,-104.8996],
-  [21.5070,-104.9012],[21.5068,-104.9028],[21.5066,-104.9044],[21.5064,-104.9060],
-  [21.5062,-104.9076],[21.5060,-104.9092],[21.5058,-104.9108]
- ],
- stops:[{n:'Centro — Calle Puebla',lat:21.5078,lng:-104.8948,next:'14 min'},
-        {n:'Calle Veracruz / Durango',lat:21.5068,lng:-104.9028,next:'8 min'},
-        {n:'Vía Veracruz — Terminal',lat:21.5058,lng:-104.9108,next:'1 min'}]},
+{id:'tierralib',name:'TIERRA Y LIBERTAD',type:'combi',color:'#b91c1c',units:10,freq:'c/18 min',hours:'6:00–21:00',
+ coords:[[21.4852,-104.9038],[21.4874,-104.9014],[21.4896,-104.8990],[21.4918,-104.8967],[21.4940,-104.8947],[21.4961,-104.8933],[21.4981,-104.8923],[21.4999,-104.8919],[21.5017,-104.8918],[21.5034,-104.8920],[21.5049,-104.8926],[21.5062,-104.8936],[21.5073,-104.8946]],
+ stops:[{n:'Fracc. Tierra y Libertad — Terminal',lat:21.4852,lng:-104.9038,next:'20 min'},{n:'Av. Rayón / Libertad',lat:21.4918,lng:-104.8967,next:'12 min'},{n:'Centro — Calle Puebla',lat:21.5073,lng:-104.8946,next:'1 min'}]},
 
-/* 19. ACAYAPAN — Col. Acayapan → Centro */
-{id:'aca',name:'ACAYAPAN',type:'camion',color:'#b45309',units:8,freq:'c/20 min',hours:'6:30–20:00',
- coords:[
-  [21.4860,-104.9180],[21.4882,-104.9152],[21.4904,-104.9125],[21.4926,-104.9098],
-  [21.4948,-104.9072],[21.4968,-104.9048],[21.4986,-104.9025],[21.5002,-104.9004],
-  [21.5016,-104.8984],[21.5028,-104.8966],[21.5040,-104.8952],[21.5055,-104.8944],
-  [21.5068,-104.8944],[21.5078,-104.8946]
- ],
- stops:[{n:'Col. Acayapan — Terminal',lat:21.4860,lng:-104.9180,next:'22 min'},
-        {n:'Libramiento / Acayapan',lat:21.4926,lng:-104.9098,next:'14 min'},
-        {n:'Centro — Calle Puebla',lat:21.5078,lng:-104.8946,next:'1 min'}]},
+{id:'matatipac',name:'MATATIPAC',type:'combi',color:'#7c3aed',units:10,freq:'c/20 min',hours:'6:30–20:30',
+ coords:[[21.4762,-104.9280],[21.4788,-104.9240],[21.4814,-104.9200],[21.4840,-104.9162],[21.4866,-104.9124],[21.4892,-104.9088],[21.4916,-104.9054],[21.4938,-104.9022],[21.4958,-104.8994],[21.4976,-104.8970],[21.4993,-104.8955],[21.5010,-104.8948],[21.5027,-104.8944],[21.5044,-104.8942],[21.5060,-104.8944],[21.5072,-104.8946],[21.5080,-104.8948]],
+ stops:[{n:'Matatipac — Terminal',lat:21.4762,lng:-104.9280,next:'30 min'},{n:'Libramiento SO',lat:21.4840,lng:-104.9162,next:'20 min'},{n:'Av. Insurgentes / Sur',lat:21.4958,lng:-104.8994,next:'10 min'},{n:'Centro — Calle Puebla',lat:21.5080,lng:-104.8948,next:'1 min'}]},
 
-/* 20. TIERRA Y LIBERTAD — Fracc. → Av. Rayón → Centro */
-{id:'tyl',name:'TIERRA Y LIBERTAD',type:'camion',color:'#b91c1c',units:10,freq:'c/18 min',hours:'6:00–21:00',
- coords:[
-  [21.4854,-104.9036],[21.4876,-104.9012],[21.4898,-104.8989],[21.4920,-104.8966],
-  [21.4941,-104.8946],[21.4961,-104.8932],[21.4980,-104.8922],[21.4998,-104.8917],
-  [21.5015,-104.8916],[21.5032,-104.8918],[21.5047,-104.8924],[21.5060,-104.8933],
-  [21.5070,-104.8942],[21.5078,-104.8948]
- ],
- stops:[{n:'Fracc. Tierra y Libertad',lat:21.4854,lng:-104.9036,next:'20 min'},
-        {n:'Av. Rayón / Libertad',lat:21.4920,lng:-104.8966,next:'12 min'},
-        {n:'Centro — Calle Puebla',lat:21.5078,lng:-104.8948,next:'1 min'}]},
-
-/* 21. MATATIPAC — Zona Matatipac → Centro */
-{id:'mat',name:'MATATIPAC',type:'camion',color:'#a16207',units:8,freq:'c/20 min',hours:'6:30–19:30',
- coords:[
-  [21.4740,-104.9250],[21.4766,-104.9208],[21.4792,-104.9167],[21.4818,-104.9126],
-  [21.4843,-104.9087],[21.4868,-104.9050],[21.4892,-104.9015],[21.4914,-104.8982],
-  [21.4935,-104.8952],[21.4954,-104.8938],[21.4972,-104.8930],[21.4990,-104.8924],
-  [21.5008,-104.8922],[21.5024,-104.8924],[21.5040,-104.8930],[21.5054,-104.8938],
-  [21.5064,-104.8942],[21.5074,-104.8946]
- ],
- stops:[{n:'Matatipac — Terminal',lat:21.4740,lng:-104.9250,next:'28 min'},
-        {n:'Libramiento Matatipac',lat:21.4818,lng:-104.9126,next:'20 min'},
-        {n:'Zona Industrial paso',lat:21.4935,lng:-104.8952,next:'10 min'},
-        {n:'Centro — Calle Puebla',lat:21.5074,lng:-104.8946,next:'1 min'}]}
+{id:'lagoscountry',name:'LAGOS DEL COUNTRY',type:'combi',color:'#ec4899',units:8,freq:'c/20 min',hours:'6:30–20:00',
+ coords:[[21.5480,-104.8840],[21.5458,-104.8848],[21.5435,-104.8856],[21.5410,-104.8862],[21.5385,-104.8866],[21.5360,-104.8869],[21.5334,-104.8870],[21.5308,-104.8870],[21.5282,-104.8870],[21.5256,-104.8869],[21.5230,-104.8868],[21.5204,-104.8866],[21.5178,-104.8866],[21.5152,-104.8872],[21.5128,-104.8882],[21.5106,-104.8896],[21.5088,-104.8914],[21.5078,-104.8932],[21.5075,-104.8948]],
+ stops:[{n:'Lagos del Country — Terminal',lat:21.5480,lng:-104.8840,next:'28 min'},{n:'Libramiento Norte',lat:21.5385,lng:-104.8866,next:'18 min'},{n:'Av. Insurgentes Norte',lat:21.5256,lng:-104.8869,next:'10 min'},{n:'Av. México / Insurgentes',lat:21.5106,lng:-104.8896,next:'4 min'},{n:'Centro — Calle Puebla',lat:21.5075,lng:-104.8948,next:'1 min'}]}
 ];
 
-/* ── COLONIAS for search ── */
 const COLONIAS=[
-  {n:'Los Progresos / Progresos',r:'p5'},{n:'Pueblo Nuevo',r:'p5'},
-  {n:'Tierra Mololoa',r:'mol'},{n:'Col. Aguacate / Ahuacate',r:'agu'},
-  {n:'Col. Morelos',r:'mor'},{n:'Col. Alemania',r:'ale'},
-  {n:'Xalisco (Intermunicipal)',r:'xal'},{n:'Fracc. Bellavista',r:'bel'},
-  {n:'Col. La Cruz',r:'lc'},{n:'Ciudad Universitaria / UAN',r:'uni'},
-  {n:'Col. Agrónomos',r:'agr'},{n:'Fracc. Allende',r:'all'},
-  {n:'Amado Nervo / UAN',r:'amn'},{n:'ISSSTE / Canteras',r:'can'},
-  {n:'Col. Colosio / Ojo de Agua',r:'cag'},{n:'Col. 2 de Agosto',r:'cag'},
-  {n:'Infonavit Los Sauces',r:'sau'},{n:'Unidad Deportiva / Estadios',r:'est'},
-  {n:'Calle Veracruz',r:'ver'},{n:'Col. Acayapan',r:'aca'},
-  {n:'Fracc. Tierra y Libertad',r:'tyl'},{n:'Zona Matatipac',r:'mat'},
-  {n:'Hospital Civil',r:'mol'},{n:'Centro / Calle Puebla',r:null},
+  {n:'Fracc. Los Progresos',r:'progreso1'},{n:'Pueblo Nuevo / Progresos',r:'progreso5'},
+  {n:'Tierra Mololoa',r:'mololoa'},{n:'Col. Aguacate / Ahuacate',r:'aguacate'},
+  {n:'Col. Morelos',r:'morelos'},{n:'Xalisco (Intermunicipal)',r:'xalisco'},
+  {n:'Fracc. Bellavista',r:'bellavista'},{n:'Col. La Cruz',r:'lacrus'},
+  {n:'Fracc. Llanitos',r:'llanitos'},{n:'Infonavit Los Sauces',r:'sauces'},
+  {n:'Ciudad Universitaria / UAN',r:'uninay'},{n:'Col. Colosio / Ojo de Agua',r:'colosio'},
+  {n:'Col. 2 de Agosto',r:'acayapan'},{n:'Col. Alemania',r:'alemania'},
+  {n:'Estadios / Unidad Deportiva',r:'ruta151'},{n:'Fracc. Tierra y Libertad',r:'tierralib'},
+  {n:'Hospital Civil',r:'mololoa'},{n:'ISSSTE / Cantera',r:'aguacate'},
+  {n:'Indeco Norte',r:'indeco1'},{n:'Indeco Sur',r:'indeco2'},
+  {n:'Matatipac',r:'matatipac'},{n:'Lagos del Country',r:'lagoscountry'},
+  {n:'Col. Acayapan',r:'acayapan'},{n:'Col. Burócratas Federal',r:'indeco1'},
+  {n:'Centro / Calle Puebla',r:null},{n:'Col. Agrónomos',r:'uninay'},
 ];
 
-/* ── LIVE DATA ── */
 const LIVE=[
-  {rte:'Progreso 5',    clr:'#22c55e',plates:'NAY-23-LMN',dist:0.6,eta:3,pax:'8/30', ok:true},
-  {rte:'Mololoa',       clr:'#3b82f6',plates:'NAY-67-DEF',dist:2.1,eta:11,pax:'12/35',ok:true},
-  {rte:'Uninay / UAN',  clr:'#06b6d4',plates:'NAY-31-GHI',dist:0.4,eta:2,pax:'22/28',ok:false},
-  {rte:'Morelos',       clr:'#0d9488',plates:'NAY-88-XYZ',dist:3.2,eta:14,pax:'5/25', ok:true},
-  {rte:'Allende',       clr:'#dc2626',plates:'NAY-45-ABX',dist:1.2,eta:6, pax:'18/35',ok:true},
-  {rte:'Canteras',      clr:'#ea580c',plates:'NAY-12-JKL',dist:0.8,eta:4, pax:'10/28',ok:true},
+  {rte:'Progreso 1',clr:'#16a34a',plates:'NAY-21-ABC',dist:0.5,eta:3,pax:'10/30',ok:true},
+  {rte:'Progreso 5',clr:'#22c55e',plates:'NAY-23-LMN',dist:0.6,eta:4,pax:'8/30',ok:true},
+  {rte:'Mololoa',clr:'#3b82f6',plates:'NAY-67-DEF',dist:2.1,eta:11,pax:'12/35',ok:true},
+  {rte:'Uninay/UAN',clr:'#06b6d4',plates:'NAY-31-GHI',dist:0.4,eta:2,pax:'22/28',ok:false},
+  {rte:'Morelos',clr:'#0d9488',plates:'NAY-88-XYZ',dist:3.2,eta:14,pax:'5/25',ok:true},
+  {rte:'Acayapan',clr:'#f97316',plates:'NAY-55-JKL',dist:1.2,eta:6,pax:'14/30',ok:true},
+  {rte:'Indeco 1',clr:'#0284c7',plates:'NAY-72-PQR',dist:1.8,eta:9,pax:'18/35',ok:true},
+  {rte:'Aguacate',clr:'#a855f7',plates:'NAY-44-STU',dist:2.5,eta:12,pax:'7/28',ok:true},
 ];
 
-/* ── TRIP OPTIONS ── */
 const TRIPS={
   uan:[
-   {lbl:'🏆 Más rápida',bg:'bg-g',bt:'Directo',t:'28 min',c:'$5 (est.)',rte:'Uninay/UAN',clr:'#06b6d4',
-    steps:['Caminar 1 min a Calle Puebla (frente a Presidencia Municipal)','Abordar camión UNINAY / UNIVERSIDAD dirección UAN','Viajar 22 min · 9 paradas','Bajar en UAN Entrada Principal','Caminar 3 min a Rectoría (220 m)']},
-   {lbl:'🔄 Alternativa',bg:'bg-b',bt:'Directo',t:'30 min',c:'$5 (est.)',rte:'Progreso 5',clr:'#22c55e',
-    steps:['Caminar 2 min a parada Av. Insurgentes / Puebla','Abordar PROGRESO 5 dirección UAN','Viajar 24 min · 8 paradas','Bajar en UAN entrada principal','Caminar 2 min']},
-   {lbl:'🚶 Menos caminata',bg:'bg-a',bt:'Directo',t:'32 min',c:'$5 (est.)',rte:'Morelos',clr:'#0d9488',
-    steps:['Abordar combi MORELOS desde Calle Puebla','Viajar 28 min dirección UAN','Bajar en UAN sin caminata extra']}
+   {lbl:'🏆 Más rápida',bg:'bg-g',bt:'Directo',t:'28 min',c:'$10',rte:'Uninay/UAN',clr:'#06b6d4',
+    steps:['Caminar 1 min a Calle Puebla (frente a Presidencia Municipal)','Abordar combi UNINAY / AGRÓNOMOS-UAN dirección Ciudad Universitaria','Viajar 22 min · 9 paradas hasta UAN','Bajar en parada UAN Entrada Principal','Caminar 3 min a Rectoría (220 m)']},
+   {lbl:'🔄 Alternativa',bg:'bg-b',bt:'Directo',t:'32 min',c:'$10',rte:'Progreso 5',clr:'#22c55e',
+    steps:['Caminar 2 min a parada Av. Insurgentes / Puebla','Abordar camión PROGRESO 5 dirección UAN','Viajar 26 min · 8 paradas','Bajar en UAN entrada principal','Caminar 2 min']},
+   {lbl:'🚶 Menos caminata',bg:'bg-a',bt:'Directo',t:'35 min',c:'$10',rte:'Morelos',clr:'#0d9488',
+    steps:['Tomar combi MORELOS desde Calle Puebla','Viajar 15 min hasta bifurcación UAN','Caminar 5 min (350 m) al acceso universitario']}
   ],
   hospital:[
    {lbl:'🏆 Más rápida',bg:'bg-g',bt:'Directo',t:'14 min',c:'$10',rte:'Mololoa',clr:'#3b82f6',
-    steps:['Abordar camión MOLOLOA en Calle Puebla','Viajar 12 min (4 paradas)','Bajar en parada Hospital Civil']},
-   {lbl:'🔄 Sauces',bg:'bg-b',bt:'Directo',t:'18 min',c:'$10',rte:'Sauces',clr:'#84cc16',
-    steps:['Abordar SAUCES en Calle Puebla','Viajar 14 min (5 paradas)','Bajar en parada Hospital Civil','Caminar 2 min']},
-   {lbl:'🚶 Por Progreso',bg:'bg-a',bt:'Directo',t:'22 min',c:'$5 (est.)',rte:'Progreso 5',clr:'#22c55e',
-    steps:['Abordar PROGRESO 5','Bajar en parada Zona Hospitalaria (7 min)','Caminar 3 min al Hospital']}
+    steps:['Abordar camión MOLOLOA en Calle Puebla','Viajar 12 min (4 paradas)','Bajar en parada Hospital Civil','Caminar 1 min al acceso']},
+   {lbl:'🔄 Alternativa',bg:'bg-b',bt:'Directo',t:'18 min',c:'$10',rte:'Sauces',clr:'#84cc16',
+    steps:['Abordar combi SAUCES en Calle Puebla','Viajar 14 min (5 paradas)','Bajar en parada Hospital Civil','Caminar 2 min']},
+   {lbl:'🚶 Por Uninay',bg:'bg-a',bt:'Directo',t:'22 min',c:'$10',rte:'Uninay',clr:'#06b6d4',
+    steps:['Abordar UNINAY/UAN desde Calle Puebla','Bajar en parada Hospital Civil (8 min)','Caminar 2 min al Hospital Civil']}
+  ],
+  central:[
+   {lbl:'🏆 Más rápida',bg:'bg-g',bt:'Directo',t:'12 min',c:'$10',rte:'Acayapan',clr:'#f97316',
+    steps:['Abordar camión ACAYAPAN en Calle Puebla dirección Central','Viajar 10 min por Av. Insurgentes hasta Central de Autobuses','Bajar en Central de Autobuses']},
+   {lbl:'🔄 Alternativa',bg:'bg-b',bt:'Directo',t:'18 min',c:'$10',rte:'Colosio',clr:'#92400e',
+    steps:['Abordar camión COLOSIO en Calle Puebla','Viajar 14 min hacia el sur por Insurgentes','Bajar cerca de Central de Autobuses','Caminar 3 min a la terminal']}
   ],
   issste:[
-   {lbl:'🏆 Más rápida',bg:'bg-g',bt:'Directo',t:'18 min',c:'$10',rte:'Canteras',clr:'#ea580c',
-    steps:['Abordar camión CANTERAS desde Calle Puebla','Viajar 16 min','Bajar en ISSSTE Cantera']}
+   {lbl:'🏆 Más rápida',bg:'bg-g',bt:'Directo',t:'18 min',c:'$10',rte:'Aguacate',clr:'#a855f7',
+    steps:['Abordar camión AGUACATE en Calle Puebla dirección Cantera','Viajar 16 min (5 paradas)','Bajar en parada ISSSTE / Cantera']}
+  ],
+  estadios:[
+   {lbl:'🏆 Más rápida',bg:'bg-g',bt:'Directo',t:'18 min',c:'$10',rte:'Ruta 15-1',clr:'#f472b6',
+    steps:['Abordar camión RUTA 15-1 en Calle Puebla','Viajar 16 min hacia Unidad Deportiva','Bajar en parada Estadios / Unidad Deportiva']},
+   {lbl:'🔄 Alternativa',bg:'bg-b',bt:'Directo',t:'22 min',c:'$10',rte:'Alemania',clr:'#15803d',
+    steps:['Abordar combi ALEMANIA desde Calle Puebla','Bajarse en Av. México / Estadios (14 min)','Caminar 5 min a la Unidad Deportiva']}
+  ],
+  xalisco:[
+   {lbl:'🏆 Única directa',bg:'bg-g',bt:'Intermunicipal',t:'35 min',c:'$15',rte:'Tepic-Xalisco',clr:'#374151',
+    steps:['Abordar camión TEPIC–XALISCO en Calle Puebla','Viajar 33 min por Blvd. Tepic-Xalisco','Bajar en terminal de Xalisco']}
+  ],
+  sauces:[
+   {lbl:'🏆 Más rápida',bg:'bg-g',bt:'Directo',t:'22 min',c:'$10',rte:'Sauces',clr:'#84cc16',
+    steps:['Abordar combi SAUCES en Calle Puebla','Viajar 20 min hacia el poniente','Bajar en terminal Infonavit Los Sauces']},
+   {lbl:'🔄 Por Indeco',bg:'bg-b',bt:'Directo',t:'28 min',c:'$10',rte:'Indeco 1',clr:'#0284c7',
+    steps:['Abordar camión INDECO 1 en Calle Puebla','Viajar 24 min por Libramiento Poniente','Bajarse cerca de Los Sauces','Caminar 4 min a la terminal']}
+  ],
+  mercado:[
+   {lbl:'🏆 Más rápida',bg:'bg-g',bt:'Centro',t:'5 min',c:'$10',rte:'Cualquier ruta',clr:'#2563eb',
+    steps:['El Mercado Central está a 5 min caminando desde Calle Puebla / Centro','Baja en el Centro y camina por Av. México o Av. Insurgentes','El mercado está en la Av. México entre calles Lerdo y Zaragoza']}
   ],
   default:[
    {lbl:'🏆 Recomendada',bg:'bg-g',bt:'Directo',t:'25 min',c:'$10',rte:'Ruta disponible',clr:'#2563eb',
-    steps:['Caminar a nodo Calle Puebla (1-2 min)','Abordar la ruta que pase primero','Viajar al destino']},
-   {lbl:'🔄 Con trasbordo',bg:'bg-b',bt:'1 trasbordo',t:'35 min',c:'$10',rte:'Dos rutas',clr:'#6366f1',
-    steps:['Tomar cualquier camión al Centro','Transbordar en Calle Puebla a ruta directa']}
+    steps:['Caminar a nodo principal Calle Puebla (1-2 min)','Abordar la ruta que pase primero hacia tu destino','Viajar hasta tu destino','Caminar al punto final']},
+   {lbl:'🔄 Con trasbordo',bg:'bg-b',bt:'1 trasbordo',t:'35 min',c:'$20',rte:'Dos rutas',clr:'#6366f1',
+    steps:['Tomar cualquier camión al Centro (Calle Puebla)','Transbordar a la ruta directa al destino','Viajar al destino final']}
   ]
 };
 
-/* ════════════════════════════════════════════════════
-   STATE
-════════════════════════════════════════════════════ */
+// ─── STATE ───
 let map,layers={},busMkrs={};
-let bal=247.50,qrTimer=null,qrSecs=60,agoSec=3,agoInt;
-let sheetExpanded=false,panelCol=false;
+let bal=247.50,qrTimer=null,qrSecs=60;
+let agoSec=3,agoInt;
+let sheetOpen=false,curMP='mapa',sideCol=false;
 let fBus=true,fVan=true,soloMode=null;
-let curMP='mapa';
 
-/* ════════════════════════════════════════════════════
-   MAP INIT
-════════════════════════════════════════════════════ */
+// ─── MAP ───
 function initMap(){
-  map=L.map('map',{center:[21.5080,-104.8955],zoom:13,zoomControl:true});
+  map=L.map('map',{center:[21.5082,-104.8958],zoom:13,zoomControl:true});
   L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{
-    attribution:'© <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/attributions">CARTO</a>',
+    attribution:'© <a href="https://openstreetmap.org/copyright">OSM</a> © <a href="https://carto.com/attributions">CARTO</a>',
     subdomains:'abcd',maxZoom:19
   }).addTo(map);
 
-  ROUTES.forEach(r=>{
-    const grp=L.layerGroup();
-    const pl=L.polyline(r.coords,{
-      color:r.color,weight:4,opacity:0.82,
-      lineCap:'round',lineJoin:'round',smoothFactor:1.5
-    });
-    pl.bindTooltip(`<strong>${r.name}</strong><br>${r.type==='camion'?'🚌':'🚐'} · ${r.freq} · ${r.hours}`,{sticky:true});
-    grp.addLayer(pl);
-
+  R.forEach(r=>{
+    const g=L.layerGroup();
+    const pl=L.polyline(r.coords,{color:r.color,weight:4,opacity:0.82,lineCap:'round',lineJoin:'round',smoothFactor:1.5});
+    pl.bindTooltip(`<strong>${r.name}</strong><br>${r.type==='camion'?'🚌':'🚐'} ${r.freq} · ${r.hours}`,{sticky:true});
+    g.addLayer(pl);
     r.stops.forEach(s=>{
-      const ico=L.divIcon({
-        html:`<div style="width:10px;height:10px;background:${r.color};border:2.5px solid white;border-radius:50%;box-shadow:0 1px 5px rgba(0,0,0,.3)"></div>`,
-        iconSize:[10,10],iconAnchor:[5,5],className:''
-      });
+      const ico=L.divIcon({html:`<div style="width:10px;height:10px;background:${r.color};border:2.5px solid #fff;border-radius:50%;box-shadow:0 1px 5px rgba(0,0,0,.3)"></div>`,iconSize:[10,10],iconAnchor:[5,5],className:''});
       L.marker([s.lat,s.lng],{icon:ico})
-        .bindPopup(`<div class="pop-name">${s.n}</div><span class="pop-bg" style="background:${r.color}">${r.name}</span><div class="pop-info">🕐 ${r.hours}<br>⏱️ ${r.freq}<br>💰 $${r.fare||10}.00 MXN</div><div class="pop-nxt">🚌 Próximo: ${s.next}</div>`)
-        .addTo(grp);
+        .bindPopup(`<div class="pop-name">${s.n}</div><div class="pop-bgs"><span class="pop-bg" style="background:${r.color}">${r.name}</span></div><div class="pop-info">🕐 ${r.hours}<br>⏱️ ${r.freq}<br>💰 $${r.fare||10}.00 MXN</div><div class="pop-nxt">🚌 Próximo: ${s.next}</div>`)
+        .addTo(g);
     });
-
-    const bi=L.divIcon({
-      html:`<div style="background:${r.color};color:#fff;border:2px solid #fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;box-shadow:0 2px 6px rgba(0,0,0,.35)">${r.type==='camion'?'🚌':'🚐'}</div>`,
-      iconSize:[22,22],iconAnchor:[11,11],className:''
-    });
+    const bi=L.divIcon({html:`<div style="background:${r.color};color:#fff;border:2px solid #fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;box-shadow:0 2px 6px rgba(0,0,0,.35)">${r.type==='camion'?'🚌':'🚐'}</div>`,iconSize:[22,22],iconAnchor:[11,11],className:''});
     const si=Math.floor(Math.random()*(r.coords.length-1));
     const bm=L.marker(r.coords[si],{icon:bi});
-    grp.addLayer(bm);
+    g.addLayer(bm);
     busMkrs[r.id]={mk:bm,idx:si,fwd:Math.random()>.5};
-    grp.addTo(map);
-    layers[r.id]=grp;
+    g.addTo(map);layers[r.id]=g;
   });
 
-  // User location pin
-  const uIco=L.divIcon({
-    html:`<div style="width:14px;height:14px;background:#2563eb;border:3px solid #fff;border-radius:50%;box-shadow:0 0 0 5px rgba(37,99,235,.22),0 2px 8px rgba(0,0,0,.3)"></div>`,
-    iconSize:[14,14],iconAnchor:[7,7],className:''
-  });
-  L.marker([21.5075,-104.8945],{icon:uIco})
-    .bindPopup('<div class="pop-name">📍 Tu ubicación</div><div class="pop-info">Calle Puebla, Centro Tepic<br>Nodo principal de rutas</div>')
-    .addTo(map);
+  const ui=L.divIcon({html:`<div style="width:14px;height:14px;background:#2563eb;border:3px solid #fff;border-radius:50%;box-shadow:0 0 0 5px rgba(37,99,235,.22),0 2px 8px rgba(0,0,0,.3)"></div>`,iconSize:[14,14],iconAnchor:[7,7],className:''});
+  L.marker([21.5075,-104.8943],{icon:ui}).bindPopup('<div class="pop-name">📍 Tu ubicación</div><div class="pop-info">Calle Puebla, Centro Tepic<br>Nodo principal de rutas</div>').addTo(map);
 
   setInterval(animBuses,2000);
   buildLegend();
 }
 
 function animBuses(){
-  ROUTES.forEach(r=>{
+  R.forEach(r=>{
     const b=busMkrs[r.id];if(!b)return;
     if(b.fwd){b.idx++;if(b.idx>=r.coords.length-1)b.fwd=false;}
     else{b.idx--;if(b.idx<=0)b.fwd=true;}
@@ -1080,47 +670,39 @@ function animBuses(){
   });
 }
 
-function fitAll(){map.fitBounds(L.latLngBounds(ROUTES.flatMap(r=>r.coords)),{padding:[30,30]})}
-
+function fitAll(){map.fitBounds(L.latLngBounds(R.flatMap(r=>r.coords)),{padding:[30,30]})}
 function geolocate(){
   if(!navigator.geolocation){toast('Geolocalización no disponible');return;}
-  navigator.geolocation.getCurrentPosition(
-    p=>{map.setView([p.coords.latitude,p.coords.longitude],15);toast('📍 Ubicación actualizada');},
-    ()=>toast('No se pudo obtener tu ubicación')
-  );
+  navigator.geolocation.getCurrentPosition(p=>{map.setView([p.coords.latitude,p.coords.longitude],15);toast('📍 Ubicación actualizada');},()=>toast('No se pudo obtener ubicación'));
 }
-
 function shareView(){
   const c=map.getCenter();
   const url=`https://www.openstreetmap.org/#map=14/${c.lat.toFixed(4)}/${c.lng.toFixed(4)}`;
-  navigator.clipboard?.writeText(url).then(()=>toast('🔗 Enlace copiado')).catch(()=>toast('Copia la URL de la barra de dirección'));
+  navigator.clipboard?.writeText(url).then(()=>toast('🔗 Enlace copiado al portapapeles')).catch(()=>toast('Copia la URL de la barra de dirección'));
 }
 
 function buildLegend(){
   const el=document.getElementById('legend');
-  const main=ROUTES.filter(r=>['p5','mol','agu','mor','uni','all'].includes(r.id));
-  el.innerHTML='<div class="leg-title">Rutas principales</div>'+
-    main.map(r=>`<div class="leg-i"><div class="leg-dot" style="background:${r.color}"></div><span class="leg-nm">${r.name}</span></div>`).join('');
+  const main=R.filter(r=>['progreso1','progreso5','mololoa','aguacate','uninay','acayapan','indeco1','xalisco'].includes(r.id));
+  el.innerHTML='<div style="font-size:.5625rem;font-weight:700;color:var(--tx2);margin-bottom:5px;letter-spacing:.5px">RUTAS PRINCIPALES</div>'+
+    main.map(r=>`<div class="leg-item"><div class="leg-dot" style="background:${r.color}"></div><span class="leg-nm">${r.name}</span></div>`).join('');
 }
 
-/* ════════════════════════════════════════════════════
-   ROUTE CARDS
-════════════════════════════════════════════════════ */
+// ─── ROUTE LISTS ───
 function buildRouteLists(){
   ['d','m'].forEach(v=>{
-    const el=document.getElementById(`rl${v}`);
-    if(!el)return;
-    el.innerHTML=ROUTES.map(r=>`
+    const el=document.getElementById(`rl-${v}`);
+    el.innerHTML=R.map(r=>`
       <div class="rc" id="rc-${r.id}-${v}">
-        <div class="rc-row">
+        <div class="rc-top">
           <div class="rdot" style="background:${r.color}"></div>
           <span class="rname">${r.name}</span>
-          <span class="rtag">${r.units}u</span>
+          <span class="run">${r.units}u</span>
           <label class="tog">
             <input type="checkbox" id="tog-${r.id}-${v}" checked onchange="togRoute('${r.id}',this.checked)">
             <div class="tog-tr"></div><div class="tog-th"></div>
           </label>
-          <button class="solo" id="solo-${r.id}-${v}" onclick="soloRoute('${r.id}')" title="Ver solo esta ruta">👁</button>
+          <button class="solo-btn" id="solo-${r.id}-${v}" onclick="soloRoute('${r.id}')" title="Ver solo esta">👁</button>
         </div>
         <div class="rc-meta">
           <span>⏱ ${r.freq}</span>
@@ -1139,33 +721,33 @@ function togRoute(id,on){
 function soloRoute(id){
   if(soloMode===id){exitSolo();return;}
   soloMode=id;
-  ROUTES.forEach(r=>{
-    const on=r.id===id;
+  R.forEach(r=>{
+    const on=(r.id===id);
     ['d','m'].forEach(v=>{
       const t=document.getElementById(`tog-${r.id}-${v}`);
       const s=document.getElementById(`solo-${r.id}-${v}`);
       const c=document.getElementById(`rc-${r.id}-${v}`);
       if(t)t.checked=on;
-      if(s)s.classList.toggle('on',r.id===id);
+      if(s)s.classList.toggle('act',r.id===id);
       if(c)c.classList.toggle('si',r.id===id);
     });
     if(on)layers[r.id].addTo(map);else map.removeLayer(layers[r.id]);
   });
-  const rr=ROUTES.find(x=>x.id===id);
+  const rr=R.find(x=>x.id===id);
   if(rr)map.fitBounds(L.latLngBounds(rr.coords),{padding:[40,40]});
-  toast(`👁 Solo: ${rr?rr.name:id} — Toca 👁 de nuevo para ver todas`);
+  toast(`👁 Solo: ${rr?rr.name:id} — Toca 👁 otra vez para ver todas`);
 }
 
 function exitSolo(){
   soloMode=null;
-  ROUTES.forEach(r=>{
+  R.forEach(r=>{
     const show=shouldShow(r);
     ['d','m'].forEach(v=>{
       const t=document.getElementById(`tog-${r.id}-${v}`);
       const s=document.getElementById(`solo-${r.id}-${v}`);
       const c=document.getElementById(`rc-${r.id}-${v}`);
       if(t)t.checked=show;
-      if(s)s.classList.remove('on');
+      if(s)s.classList.remove('act');
       if(c)c.classList.remove('si');
     });
     if(show)layers[r.id].addTo(map);else map.removeLayer(layers[r.id]);
@@ -1177,56 +759,54 @@ function shouldShow(r){return(r.type==='camion'&&fBus)||(r.type==='combi'&&fVan)
 
 function setAll(on){
   soloMode=null;
-  ROUTES.forEach(r=>{
+  R.forEach(r=>{
     const show=on&&shouldShow(r);
     ['d','m'].forEach(v=>{const e=document.getElementById(`tog-${r.id}-${v}`);if(e)e.checked=show});
     if(show)layers[r.id].addTo(map);else map.removeLayer(layers[r.id]);
   });
-  toast(on?'✅ Todas las rutas activas':'🚫 Mapa limpio');
+  toast(on?'✅ Todas las rutas activas':'🚫 Todas desactivadas — mapa limpio');
 }
 
-function togFilter(type){
+function toggleFilter(type){
   if(type==='bus')fBus=!fBus;else fVan=!fVan;
-  [['fbd','fbm'],['fvd','fvm']].forEach(([a,b],i)=>{
-    const v=i===0?fBus:fVan;
-    [a,b].forEach(id=>{const e=document.getElementById(id);if(e)e.classList.toggle('on',v)});
+  [['fc-b','fc-b-m'],['fc-v','fc-v-m']].forEach(([a,b],i)=>{
+    const val=i===0?fBus:fVan;
+    [a,b].forEach(id=>{const e=document.getElementById(id);if(e)e.classList.toggle('on',val)});
   });
-  ROUTES.forEach(r=>{
+  R.forEach(r=>{
     const show=shouldShow(r);
     ['d','m'].forEach(v=>{const e=document.getElementById(`tog-${r.id}-${v}`);if(e)e.checked=show});
     if(show)layers[r.id].addTo(map);else map.removeLayer(layers[r.id]);
   });
-  toast(`🚌${fBus?'✅':'🚫'} · 🚐${fVan?'✅':'🚫'}`);
+  toast(`🚌 Camiones ${fBus?'ON':'OFF'} · 🚐 Combis ${fVan?'ON':'OFF'}`);
 }
 
-/* ── SEARCH ── */
+// ─── SEARCH ───
 function doSearch(inp,did){
   const q=inp.value.toLowerCase().trim();
-  const dr=document.getElementById(did);
-  if(!q){dr.classList.remove('open');return;}
+  const drop=document.getElementById(did);
+  if(!q){drop.classList.remove('open');return;}
   const m=COLONIAS.filter(c=>c.n.toLowerCase().includes(q)).slice(0,8);
-  if(!m.length){dr.classList.remove('open');return;}
-  dr.innerHTML=m.map(c=>`<div class="sitem" onmousedown="selColony('${c.n}','${c.r||''}','${did}')">${c.n}</div>`).join('');
-  dr.classList.add('open');
+  if(!m.length){drop.classList.remove('open');return;}
+  drop.innerHTML=m.map(c=>`<div class="si-item" onmousedown="selColony('${c.n}','${c.r||''}','${did}')">${c.n}</div>`).join('');
+  drop.classList.add('open');
 }
 function closeSearch(id){document.getElementById(id)?.classList.remove('open')}
 function selColony(name,rid,did){
   if(rid&&layers[rid])soloRoute(rid);
   document.getElementById(did)?.classList.remove('open');
-  if(!rid)toast(`Centro: ${name}`);
+  if(!rid)toast(`🔍 ${name} — nodo central`);
 }
 
-/* ── LIVE ── */
+// ─── LIVE ───
 function buildLive(){
   ['d','m'].forEach(v=>{
-    const el=document.getElementById(`ll${v}`);if(!el)return;
+    const el=document.getElementById(`ll-${v}`);if(!el)return;
     el.innerHTML=LIVE.map(u=>`
       <div class="lc">
         <div class="lc-top">
-          <div>
-            <div class="lc-nm"><span style="color:${u.clr}">●</span> ${u.rte}</div>
-            <div class="lc-sub">${u.plates} · 👥 ${u.pax}${!u.ok?' ⚠️':''}</div>
-          </div>
+          <div><div class="lc-name"><span style="color:${u.clr}">●</span> ${u.rte}</div>
+          <div class="lc-sub">${u.plates} · 👥 ${u.pax}${!u.ok?' ⚠️':''}</div></div>
           <div class="lc-eta">${u.eta} min</div>
         </div>
         <div class="lc-sub" style="color:${u.ok?'var(--ok)':'var(--wa)'}">${u.ok?'✅ En tiempo':'⚠️ Casi lleno'}</div>
@@ -1236,9 +816,9 @@ function buildLive(){
 }
 function startAgo(){agoInt=setInterval(()=>{agoSec=(agoSec%15)+1;['ago-d','ago-m'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=agoSec})},1000)}
 
-/* ── TRIP PLANNER ── */
+// ─── TRIP PLANNER ───
 function calcRuta(v){
-  const key=document.getElementById(`dst${v}`).value;
+  const key=document.getElementById(`dst-${v}`).value;
   const opts=TRIPS[key]||TRIPS.default;
   const html=opts.map((o,i)=>`
     <div class="res-card ${i===0?'best':''}">
@@ -1248,30 +828,29 @@ function calcRuta(v){
       </div>
       <div class="res-st"><span>⏱ ${o.t}</span><span>💰 ${o.c}</span><span><span style="color:${o.clr}">●</span> ${o.rte}</span></div>
       <div class="res-bd ${i===0?'open':''}">
-        ${o.steps.map((s,j)=>`<div class="step"><div class="sn">${j+1}</div><div>${s}</div></div>`).join('')}
-        <div class="alert-ok">🔔 Alerta 5 min antes de que llegue tu camión</div>
+        ${o.steps.map((s,j)=>`<div class="step"><div class="step-n">${j+1}</div><div>${s}</div></div>`).join('')}
+        <div class="alert-ok">🔔 Activar alerta cuando el camión esté a 5 min de tu parada</div>
       </div>
     </div>`).join('');
   ['d','m'].forEach(x=>{
-    const rs=document.getElementById(`rs${x}`);const rc=document.getElementById(`rc${x}`);
+    const rs=document.getElementById(`rs-${x}`);const rc=document.getElementById(`rc-${x}`);
     if(rs)rs.style.display='block';if(rc)rc.innerHTML=html;
   });
-  if(v==='m')expandSheet();
+  if(v==='m')openSheet();
 }
 function togSteps(hd){hd.nextElementSibling.nextElementSibling.classList.toggle('open')}
 
-/* ── TEPIC PAY ── */
+// ─── TEPIC PAY ───
 function showQR(v){document.getElementById(`qr-${v}`).style.display='block';document.getElementById(`rec-${v}`).style.display='none';drawQR(v);startQRT(v)}
 function closeQR(v){document.getElementById(`qr-${v}`).style.display='none';if(qrTimer)clearInterval(qrTimer)}
 function showRec(v){document.getElementById(`rec-${v}`).style.display='block';document.getElementById(`qr-${v}`).style.display='none'}
 function closeRec(v){document.getElementById(`rec-${v}`).style.display='none'}
-function setA(v,a){const e=document.getElementById(`ra${v}`);if(e)e.value=a}
+function setA(v,a){const e=document.getElementById(`ra-${v}`);if(e)e.value=a}
 function doRec(v){
-  const a=parseFloat(document.getElementById(`ra${v}`).value);
-  if(!a||a<50){toast('⚠️ Mínimo $50');return;}
-  bal+=a;
-  ['d','m'].forEach(x=>{const e=document.getElementById(`bal${x}`);if(e)e.textContent='$'+bal.toFixed(2)});
-  closeRec(v);toast(`✅ Recarga +$${a.toFixed(2)} exitosa`);
+  const a=parseFloat(document.getElementById(`ra-${v}`).value);
+  if(!a||a<50){toast('⚠️ Monto mínimo $50');return;}
+  bal+=a;['d','m'].forEach(x=>{const e=document.getElementById(`bal-${x}`);if(e)e.textContent='$'+bal.toFixed(2)});
+  closeRec(v);toast(`✅ Recarga exitosa +$${a.toFixed(2)}`);
 }
 function drawQR(v){
   const cv=document.getElementById(`qrc-${v}`);const ctx=cv.getContext('2d');const s=cv.width;
@@ -1288,123 +867,46 @@ function startQRT(v){
   qrSecs=60;const se=document.getElementById(`qs-${v}`),be=document.getElementById(`qrb-${v}`);
   if(se)se.textContent=60;if(be)be.style.width='100%';
   if(qrTimer)clearInterval(qrTimer);
-  qrTimer=setInterval(()=>{
-    qrSecs--;if(se)se.textContent=qrSecs;if(be)be.style.width=(qrSecs/60*100)+'%';
-    if(qrSecs<=0){clearInterval(qrTimer);closeQR(v);toast('⏱️ QR expirado')}
-  },1000);
+  qrTimer=setInterval(()=>{qrSecs--;if(se)se.textContent=qrSecs;if(be)be.style.width=(qrSecs/60*100)+'%';if(qrSecs<=0){clearInterval(qrTimer);closeQR(v);toast('⏱️ QR expirado, genera uno nuevo')}},1000);
 }
 
-/* ════════════════════════════════════════════════════
-   NAVIGATION
-════════════════════════════════════════════════════ */
+// ─── NAVIGATION ───
 function swD(tab,btn){
   document.querySelectorAll('.d-tab').forEach(b=>b.classList.remove('on'));
   if(btn)btn.classList.add('on');
-  ['mapa','planear','vivo','pago'].forEach(t=>{
-    const p=document.getElementById(`pd-${t}`);if(p)p.className='panel'+(t===tab?' on':'');
-  });
+  ['mapa','planear','vivo','pago'].forEach(t=>{const p=document.getElementById(`pd-${t}`);if(p)p.className='panel'+(t===tab?' on':'')});
   if(tab==='vivo')buildLive();
 }
-
 function swM(tab){
   curMP=tab;
   document.querySelectorAll('.bn').forEach(b=>b.classList.remove('on'));
   const btn=document.getElementById(`bn-${tab}`);if(btn)btn.classList.add('on');
-  const lbls={mapa:'Rutas de Tepic',planear:'Planear viaje',vivo:'En vivo',pago:'Tepic Pay'};
-  const lbl=document.getElementById('sh-lbl');if(lbl)lbl.textContent=lbls[tab]||tab;
-  ['mapa','planear','vivo','pago'].forEach(t=>{
-    const sp=document.getElementById(`sm-${t}`);if(sp)sp.style.display=t===tab?'':'none';
-  });
-  if(tab==='mapa'){collapseSheet();}
-  else{expandSheet();}
+  const lbls={mapa:'Rutas de Tepic',planear:'Planear viaje',vivo:'Unidades en vivo',pago:'Tepic Pay'};
+  const el=document.getElementById('sh-lbl');if(el)el.textContent=lbls[tab]||tab;
+  ['mapa','planear','vivo','pago'].forEach(t=>{const sp=document.getElementById(`sm-${t}`);if(sp)sp.style.display=t===tab?'':'none'});
+  if(tab==='mapa')closeSheet();else openSheet();
   if(tab==='vivo')buildLive();
 }
-
-/* ── BOTTOM SHEET ── */
-function expandSheet(){
-  const bs=document.getElementById('bsheet');
-  bs.classList.add('expanded');
-  sheetExpanded=true;
-  const btn=document.getElementById('sh-tog-btn');
-  if(btn)btn.textContent='▼ Colapsar';
-  // Trigger map resize
-  setTimeout(()=>map.invalidateSize(),350);
-}
-function collapseSheet(){
-  const bs=document.getElementById('bsheet');
-  bs.classList.remove('expanded');
-  sheetExpanded=false;
-  const btn=document.getElementById('sh-tog-btn');
-  if(btn)btn.textContent='▲ Expandir';
-  setTimeout(()=>map.invalidateSize(),350);
-}
-function toggleSheet(){sheetExpanded?collapseSheet():expandSheet()}
-
-/* ── Touch drag on sheet handle ── */
-(function(){
-  let startY=0,startH=0,dragging=false;
-  const handle=document.getElementById('shHandle');
-  const sheet=document.getElementById('bsheet');
-  if(!handle||!sheet)return;
-
-  handle.addEventListener('touchstart',e=>{
-    startY=e.touches[0].clientY;
-    startH=sheet.getBoundingClientRect().height;
-    dragging=true;
-  },{passive:true});
-
-  window.addEventListener('touchmove',e=>{
-    if(!dragging)return;
-    const dy=startY-e.touches[0].clientY;
-    const newH=Math.max(56,Math.min(window.innerHeight*0.88,startH+dy));
-    sheet.style.height=newH+'px';
-  },{passive:true});
-
-  window.addEventListener('touchend',()=>{
-    if(!dragging)return;
-    dragging=false;
-    const h=sheet.getBoundingClientRect().height;
-    const mid=window.innerHeight*0.52;
-    if(h>mid)expandSheet();
-    else collapseSheet();
-    sheet.style.height=''; // let CSS take over
-    setTimeout(()=>map.invalidateSize(),350);
-  });
-})();
-
-/* ── DESKTOP PANEL ── */
-function togglePanel(){
-  panelCol=!panelCol;
-  document.getElementById('panel').classList.toggle('col',panelCol);
-  document.getElementById('colBtn').textContent=panelCol?'▶':'◀';
+function openSheet(){document.getElementById('bsheet').classList.add('open');sheetOpen=true}
+function closeSheet(){document.getElementById('bsheet').classList.remove('open');sheetOpen=false}
+function toggleSheet(){sheetOpen?closeSheet():openSheet()}
+function toggleSidebar(){
+  sideCol=!sideCol;
+  document.getElementById('sidebar').classList.toggle('col',sideCol);
+  document.getElementById('colBtn').textContent=sideCol?'▶':'◀';
   setTimeout(()=>map.invalidateSize(),280);
 }
-
-/* ── THEME ── */
 function toggleTheme(){
-  const html=document.documentElement;
-  const dark=html.getAttribute('data-theme')==='dark';
+  const html=document.documentElement;const dark=html.getAttribute('data-theme')==='dark';
   html.setAttribute('data-theme',dark?'light':'dark');
   document.getElementById('thB').textContent=dark?'🌙':'☀️';
   toast(dark?'☀️ Modo claro':'🌙 Modo oscuro');
 }
-
-/* ── TOAST ── */
 function toast(msg){
-  const el=document.getElementById('toast');
-  el.textContent=msg;el.classList.add('show');
+  const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');
   setTimeout(()=>el.classList.remove('show'),2800);
 }
-
-/* ════════════════════════════════════════════════════
-   INIT
-════════════════════════════════════════════════════ */
-window.addEventListener('load',()=>{
-  initMap();
-  buildRouteLists();
-  buildLive();
-  startAgo();
-});
+window.addEventListener('load',()=>{initMap();buildRouteLists();buildLive();startAgo()});
 </script>
 </body>
 </html>
